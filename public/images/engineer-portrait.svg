@@ -1,0 +1,84 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 750" width="100%" height="100%">
+  <defs>
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#111827"/>
+      <stop offset="50%" stop-color="#0B0F14"/>
+      <stop offset="100%" stop-color="#1F2937"/>
+    </linearGradient>
+    <linearGradient id="orangeGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#F97316"/>
+      <stop offset="100%" stop-color="#EA580C"/>
+    </linearGradient>
+    <linearGradient id="steelGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#334155"/>
+      <stop offset="100%" stop-color="#1E293B"/>
+    </linearGradient>
+    <pattern id="gridPattern" width="30" height="30" patternUnits="userSpaceOnUse">
+      <path d="M 30 0 L 0 0 0 30" fill="none" stroke="#273244" stroke-width="0.75" stroke-opacity="0.6"/>
+    </pattern>
+    <radialGradient id="halo" cx="50%" cy="40%" r="50%">
+      <stop offset="0%" stop-color="#F97316" stop-opacity="0.15"/>
+      <stop offset="100%" stop-color="#0B0F14" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+
+  <!-- Background Base -->
+  <rect width="600" height="750" fill="url(#bgGrad)"/>
+  <rect width="600" height="750" fill="url(#gridPattern)"/>
+  <circle cx="300" cy="300" r="260" fill="url(#halo)"/>
+
+  <!-- Architectural Axis Lines -->
+  <line x1="50" y1="300" x2="550" y2="300" stroke="#F97316" stroke-width="1" stroke-dasharray="8 6" stroke-opacity="0.3"/>
+  <line x1="300" y1="50" x2="300" y2="650" stroke="#F97316" stroke-width="1" stroke-dasharray="8 6" stroke-opacity="0.3"/>
+  <circle cx="300" cy="300" r="180" fill="none" stroke="#273244" stroke-width="1.5" stroke-dasharray="4 4"/>
+  <circle cx="300" cy="300" r="220" fill="none" stroke="#F97316" stroke-width="1" stroke-opacity="0.2"/>
+
+  <!-- Compass / Elevation Markings -->
+  <text x="310" y="70" fill="#F97316" font-family="monospace" font-size="12" letter-spacing="2">BM EL +1350.40m</text>
+  <text x="70" y="320" fill="#A7B0BD" font-family="monospace" font-size="11">AXIS-01 // NEC REG</text>
+  <text x="440" y="320" fill="#A7B0BD" font-family="monospace" font-size="11">TOTAL STATION REF</text>
+
+  <!-- Stylized Civil Engineer Silhouette & PPE -->
+  <g transform="translate(150, 160)">
+    <!-- Safety Hardhat / PPE Helmet -->
+    <path d="M 70 85 C 70 30, 230 30, 230 85 C 255 90, 255 105, 230 110 L 70 110 C 45 105, 45 90, 70 85 Z" fill="url(#orangeGrad)" filter="drop-shadow(0px 8px 16px rgba(249,115,22,0.3))"/>
+    <!-- Hardhat Crest Ridge -->
+    <path d="M 135 32 C 145 30, 155 30, 165 32 L 165 95 C 155 98, 145 98, 135 95 Z" fill="#FB923C"/>
+    <!-- Helmet Reflector Strip -->
+    <rect x="85" y="85" width="130" height="8" rx="4" fill="#FFFFFF" fill-opacity="0.85"/>
+    <text x="150" y="92" text-anchor="middle" fill="#0B0F14" font-family="sans-serif" font-weight="900" font-size="6" letter-spacing="1">CIVIL ENGINEER • NEPAL</text>
+
+    <!-- Head & Face Profile -->
+    <ellipse cx="150" cy="145" rx="55" ry="60" fill="#334155"/>
+    <path d="M 130 180 C 130 195, 170 195, 170 180 Z" fill="#1E293B"/>
+
+    <!-- High-Vis Safety Vest & Shoulders -->
+    <path d="M 40 230 C 50 190, 110 185, 150 185 C 190 185, 250 190, 260 230 L 290 420 L 10 420 Z" fill="url(#steelGrad)"/>
+    <!-- High-Vis Vest Panels (Engineering Orange & Reflective) -->
+    <path d="M 85 200 L 125 200 L 115 420 L 60 420 Z" fill="url(#orangeGrad)"/>
+    <path d="M 215 200 L 175 200 L 185 420 L 240 420 Z" fill="url(#orangeGrad)"/>
+    <!-- Reflective Silver Strips on Vest -->
+    <rect x="75" y="270" width="150" height="14" rx="2" fill="#E2E8F0" fill-opacity="0.9"/>
+    <rect x="70" y="320" width="160" height="14" rx="2" fill="#E2E8F0" fill-opacity="0.9"/>
+    <!-- NEC ID Card Badge Lanyard -->
+    <rect x="135" y="200" width="30" height="70" rx="3" fill="#0B0F14" stroke="#F97316" stroke-width="1.5"/>
+    <rect x="140" y="205" width="20" height="12" fill="#F97316"/>
+    <line x1="140" y1="225" x2="160" y2="225" stroke="#FFFFFF" stroke-width="1.5"/>
+    <line x1="140" y1="230" x2="155" y2="230" stroke="#94A3B8" stroke-width="1"/>
+    <text x="150" y="245" text-anchor="middle" fill="#F8FAFC" font-family="monospace" font-size="5" font-weight="bold">NEC LICENSED</text>
+  </g>
+
+  <!-- Technical Drawing Callout Card -->
+  <g transform="translate(60, 580)">
+    <rect width="480" height="120" rx="10" fill="#111827" fill-opacity="0.95" stroke="#273244" stroke-width="1.5"/>
+    <rect x="20" y="22" width="6" height="76" rx="3" fill="#F97316"/>
+    <text x="40" y="44" fill="#F8FAFC" font-family="sans-serif" font-weight="bold" font-size="18">Er. Denish Adhikari</text>
+    <text x="40" y="65" fill="#F97316" font-family="monospace" font-weight="600" font-size="12" letter-spacing="1">CIVIL SITE ENGINEER &amp; FIELD SURVEYOR</text>
+    <text x="40" y="85" fill="#A7B0BD" font-family="sans-serif" font-size="12">Nepal Engineering Council (NEC) Registered • Pokhara University</text>
+    
+    <!-- Status Indicator -->
+    <circle cx="430" cy="40" r="5" fill="#22C55E"/>
+    <circle cx="430" cy="40" r="9" fill="none" stroke="#22C55E" stroke-width="1" stroke-opacity="0.5"/>
+    <text x="445" y="44" fill="#F8FAFC" font-family="sans-serif" font-size="11" font-weight="500">Active On-Site</text>
+  </g>
+</svg>

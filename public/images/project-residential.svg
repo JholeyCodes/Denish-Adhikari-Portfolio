@@ -1,0 +1,81 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 500" width="100%" height="100%">
+  <defs>
+    <linearGradient id="blueprintBg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0F172A"/>
+      <stop offset="100%" stop-color="#020617"/>
+    </linearGradient>
+    <pattern id="cadGrid" width="25" height="25" patternUnits="userSpaceOnUse">
+      <path d="M 25 0 L 0 0 0 25" fill="none" stroke="#2563EB" stroke-width="0.5" stroke-opacity="0.2"/>
+    </pattern>
+  </defs>
+
+  <rect width="800" height="500" fill="url(#blueprintBg)"/>
+  <rect width="800" height="500" fill="url(#cadGrid)"/>
+
+  <!-- Title Header -->
+  <text x="40" y="50" fill="#F97316" font-family="monospace" font-weight="bold" font-size="14" letter-spacing="2">PROJECT 02 // KATHMANDU VALLEY</text>
+  <text x="40" y="80" fill="#F8FAFC" font-family="sans-serif" font-weight="bold" font-size="24">Residential Structural Detailing &amp; Municipal Plans</text>
+  <text x="40" y="105" fill="#A7B0BD" font-family="sans-serif" font-size="13">Ujyalo Engineering Consultancy • 2D Drafting &amp; NBC Compliance</text>
+
+  <!-- Architectural Floor Plan CAD Representation -->
+  <g transform="translate(60, 130)">
+    <!-- Boundary Wall -->
+    <rect x="0" y="0" width="380" height="300" fill="#1E293B" fill-opacity="0.5" stroke="#38BDF8" stroke-width="2"/>
+    
+    <!-- Interior Rooms & Partition Walls -->
+    <line x1="0" y1="140" x2="380" y2="140" stroke="#38BDF8" stroke-width="2"/>
+    <line x1="160" y1="0" x2="160" y2="140" stroke="#38BDF8" stroke-width="2"/>
+    <line x1="220" y1="140" x2="220" y2="300" stroke="#38BDF8" stroke-width="2"/>
+
+    <!-- Room Labels -->
+    <text x="50" y="70" fill="#F8FAFC" font-family="sans-serif" font-size="12" font-weight="600">LIVING ROOM</text>
+    <text x="50" y="88" fill="#94A3B8" font-family="monospace" font-size="10">4.50m × 4.20m</text>
+
+    <text x="240" y="70" fill="#F8FAFC" font-family="sans-serif" font-size="12" font-weight="600">BEDROOM 01</text>
+    <text x="240" y="88" fill="#94A3B8" font-family="monospace" font-size="10">3.80m × 4.20m</text>
+
+    <text x="50" y="210" fill="#F8FAFC" font-family="sans-serif" font-size="12" font-weight="600">KITCHEN / DINING</text>
+    <text x="50" y="228" fill="#94A3B8" font-family="monospace" font-size="10">4.50m × 4.00m</text>
+
+    <text x="250" y="210" fill="#F8FAFC" font-family="sans-serif" font-size="12" font-weight="600">STAIRCASE</text>
+    <!-- Staircase Treads -->
+    <line x1="230" y1="230" x2="370" y2="230" stroke="#F97316" stroke-width="1"/>
+    <line x1="230" y1="245" x2="370" y2="245" stroke="#F97316" stroke-width="1"/>
+    <line x1="230" y1="260" x2="370" y2="260" stroke="#F97316" stroke-width="1"/>
+    <line x1="230" y1="275" x2="370" y2="275" stroke="#F97316" stroke-width="1"/>
+
+    <!-- Structural Columns (Filled Orange squares) -->
+    <rect x="-6" y="-6" width="16" height="16" fill="#F97316" stroke="#FFFFFF" stroke-width="1"/>
+    <rect x="152" y="-6" width="16" height="16" fill="#F97316" stroke="#FFFFFF" stroke-width="1"/>
+    <rect x="370" y="-6" width="16" height="16" fill="#F97316" stroke="#FFFFFF" stroke-width="1"/>
+    <rect x="-6" y="132" width="16" height="16" fill="#F97316" stroke="#FFFFFF" stroke-width="1"/>
+    <rect x="152" y="132" width="16" height="16" fill="#F97316" stroke="#FFFFFF" stroke-width="1"/>
+    <rect x="370" y="132" width="16" height="16" fill="#F97316" stroke="#FFFFFF" stroke-width="1"/>
+    <rect x="-6" y="290" width="16" height="16" fill="#F97316" stroke="#FFFFFF" stroke-width="1"/>
+    <rect x="212" y="290" width="16" height="16" fill="#F97316" stroke="#FFFFFF" stroke-width="1"/>
+    <rect x="370" y="290" width="16" height="16" fill="#F97316" stroke="#FFFFFF" stroke-width="1"/>
+  </g>
+
+  <!-- Detailed Column Cross Section Detailing -->
+  <g transform="translate(490, 130)">
+    <rect width="260" height="300" rx="8" fill="#111827" stroke="#273244" stroke-width="1.5"/>
+    <text x="20" y="30" fill="#F97316" font-family="monospace" font-size="11" font-weight="bold">COLUMN REBAR DETAIL // C1</text>
+    
+    <!-- Concrete Section -->
+    <rect x="50" y="60" width="160" height="160" fill="#1E293B" stroke="#94A3B8" stroke-width="2"/>
+    <!-- Outer Tie / Stirrup -->
+    <rect x="62" y="72" width="136" height="136" rx="4" fill="none" stroke="#F97316" stroke-width="2"/>
+    <!-- 8 Main Longitudinal Rebars (Rebar Circles) -->
+    <circle cx="72" cy="82" r="7" fill="#F97316"/>
+    <circle cx="130" cy="82" r="7" fill="#F97316"/>
+    <circle cx="188" cy="82" r="7" fill="#F97316"/>
+    <circle cx="72" cy="140" r="7" fill="#F97316"/>
+    <circle cx="188" cy="140" r="7" fill="#F97316"/>
+    <circle cx="72" cy="198" r="7" fill="#F97316"/>
+    <circle cx="130" cy="198" r="7" fill="#F97316"/>
+    <circle cx="188" cy="198" r="7" fill="#F97316"/>
+
+    <text x="20" y="250" fill="#F8FAFC" font-family="sans-serif" font-size="11">Main: 8 - 16mm Ø Fe500D</text>
+    <text x="20" y="270" fill="#94A3B8" font-family="sans-serif" font-size="10">Ties: 8mm Ø @ 100mm c/c (Confining Zone)</text>
+  </g>
+</svg>
