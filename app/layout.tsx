@@ -1,8 +1,14 @@
 import type { Metadata } from "next";
 import "./globals.css";
 
+const siteUrl =
+  process.env.NEXT_PUBLIC_SITE_URL ||
+  (process.env.VERCEL_PROJECT_PRODUCTION_URL
+    ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`
+    : "https://denish-adhikari-portfolio.vercel.app");
+
 export const metadata: Metadata = {
-  metadataBase: new URL("https://denishadhikari.com.np"),
+  metadataBase: new URL(siteUrl),
   title: "Er. Denish Adhikari | Civil Site Engineer & Surveyor (Nepal)",
   description:
     "Official portfolio of Er. Denish Adhikari, Registered Civil Engineer (Nepal Engineering Council). Specialized in wastewater treatment plant construction, RCC tanks, Total Station & Auto Level surveying, and quality control.",
