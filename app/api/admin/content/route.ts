@@ -11,11 +11,15 @@ import { galleryData } from "@/data/gallery";
 
 const ADMIN_SECRET = process.env.ADMIN_PASSWORD || "denish2026!";
 const SESSION_COOKIE = "denish_admin_session";
+const SESSION_SALT = "denish_portfolio_salt_2026";
 
 function isAuthenticated(request: NextRequest): boolean {
   const token = request.cookies.get(SESSION_COOKIE)?.value;
   if (!token) return false;
-  const expected = crypto.createHmac("sha256", "denish_portfolio_salt_2026").update(ADMIN_SECRET).digest("hex");
+  const expected = crypto
+    .createHmac("sha256", SESSION_SALT)
+    .update(`${ADMIN_SECRET}:authenticated_admin`)
+    .digest("hex");
   return token === expected;
 }
 

@@ -4,13 +4,14 @@ import React, { useState, useEffect } from "react";
 import Image from "next/image";
 import { siteData as staticSiteData } from "@/data/siteData";
 import { usePortfolioData } from "@/data/PortfolioContext";
-import { ArrowDown, FileText, ChevronRight, MapPin, Award, CheckCircle2 } from "lucide-react";
+import { ArrowDown, FileText, ChevronRight, MapPin, Award, CheckCircle2, Calculator } from "lucide-react";
 
 interface HeroProps {
   onOpenResume: () => void;
+  onOpenEstimator?: () => void;
 }
 
-export const Hero: React.FC<HeroProps> = ({ onOpenResume }) => {
+export const Hero: React.FC<HeroProps> = ({ onOpenResume, onOpenEstimator }) => {
   const { data } = usePortfolioData();
   const personal = data?.siteData?.personal || staticSiteData.personal;
   const roles = personal.rotatingRoles && personal.rotatingRoles.length > 0 ? personal.rotatingRoles : staticSiteData.personal.rotatingRoles;
@@ -25,33 +26,34 @@ export const Hero: React.FC<HeroProps> = ({ onOpenResume }) => {
   }, [roles.length]);
 
   return (
-    <section id="hero" className="relative min-h-[92vh] pt-32 pb-16 flex items-center overflow-hidden">
-      {/* Engineering Blueprint Grid Background */}
-      <div className="absolute inset-0 bg-grid-pattern bg-[size:32px_32px] opacity-40 pointer-events-none" />
-      <div className="absolute top-0 right-1/4 w-[500px] h-[500px] bg-accent/10 rounded-full blur-[120px] pointer-events-none" />
+    <section
+      id="hero"
+      className="relative min-h-[92vh] flex items-center justify-center pt-28 pb-16 overflow-hidden border-b border-border/60"
+    >
+      {/* Structural Grid Background Overlay */}
+      <div className="absolute inset-0 bg-grid opacity-30 pointer-events-none" />
+
+      {/* Ambient Lighting Gradient */}
+      <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[350px] bg-accent/10 blur-[130px] rounded-full pointer-events-none" />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 w-full">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-8 items-center">
           {/* Left Column: Headline, Bio & CTAs */}
           <div className="lg:col-span-7 space-y-6">
-            {/* Badges */}
-            <div className="flex flex-wrap items-center gap-2">
-              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-accent/10 border border-accent/30 text-accent font-mono text-xs font-semibold tracking-wider">
-                <span className="w-1.5 h-1.5 rounded-full bg-accent animate-ping" />
-                CIVIL ENGINEER • NEPAL
-              </span>
-              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-surface border border-border text-text-secondary font-mono text-xs">
-                <Award className="w-3.5 h-3.5 text-accent" />
-                {personal.license || "NEC Licensed"} ({personal.licenseDate || "Oct 2024"})
-              </span>
+            {/* Status & Licensing Pill */}
+            <div className="inline-flex items-center gap-2.5 px-3.5 py-1.5 rounded-full bg-surface border border-border text-xs font-mono">
+              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+              <span className="text-text-secondary">{personal.license}</span>
+              <span className="text-border">|</span>
+              <span className="text-accent font-semibold">Civil Engineering</span>
             </div>
 
-            {/* Main Title */}
+            {/* Main Headline */}
             <div className="space-y-2">
-              <p className="text-sm sm:text-base font-mono text-text-muted uppercase tracking-widest">
-                Professional Engineering Portfolio
+              <p className="text-sm sm:text-base font-mono text-accent uppercase tracking-wider font-semibold">
+                Technical Portfolio &amp; Site Records
               </p>
-              <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold text-text-primary tracking-tight leading-[1.1]">
+              <h1 className="text-4xl sm:text-6xl lg:text-7xl font-extrabold tracking-tight text-text-primary leading-[1.08]">
                 {personal.name}
               </h1>
             </div>
@@ -87,7 +89,7 @@ export const Hero: React.FC<HeroProps> = ({ onOpenResume }) => {
             </div>
 
             {/* CTA Action Buttons */}
-            <div className="flex flex-wrap items-center gap-4 pt-4">
+            <div className="flex flex-wrap items-center gap-3.5 pt-4">
               <a
                 href="#projects"
                 className="inline-flex items-center gap-2 px-6 py-3.5 rounded-xl bg-accent text-white font-semibold text-sm hover:bg-accent-soft transition-all shadow-xl shadow-accent/25 hover:shadow-accent/40 group"
@@ -98,15 +100,26 @@ export const Hero: React.FC<HeroProps> = ({ onOpenResume }) => {
 
               <button
                 onClick={onOpenResume}
-                className="inline-flex items-center gap-2 px-6 py-3.5 rounded-xl bg-surface hover:bg-surface-light border border-border hover:border-accent text-text-primary font-semibold text-sm transition-all group"
+                className="inline-flex items-center gap-2 px-5 py-3.5 rounded-xl bg-surface hover:bg-surface-light border border-border hover:border-accent text-text-primary font-semibold text-sm transition-all group"
               >
                 <FileText className="w-4 h-4 text-accent group-hover:scale-110 transition-transform" />
-                <span>Download CV (PDF)</span>
+                <span>Download CV</span>
               </button>
+
+              {onOpenEstimator && (
+                <button
+                  type="button"
+                  onClick={onOpenEstimator}
+                  className="inline-flex items-center gap-2 px-5 py-3.5 rounded-xl bg-surface-dark hover:bg-surface border border-accent/40 text-accent font-semibold text-sm transition-all group"
+                >
+                  <Calculator className="w-4 h-4 text-accent group-hover:rotate-12 transition-transform" />
+                  <span>RCC Mix Tool</span>
+                </button>
+              )}
 
               <a
                 href="#contact"
-                className="inline-flex items-center gap-2 px-5 py-3.5 text-text-secondary hover:text-accent font-semibold text-sm transition-colors"
+                className="inline-flex items-center gap-2 px-4 py-3.5 text-text-secondary hover:text-accent font-semibold text-sm transition-colors"
               >
                 Contact Directly →
               </a>

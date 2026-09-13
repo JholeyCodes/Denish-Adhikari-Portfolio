@@ -1,35 +1,94 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { projectsData as staticProjects, ProjectCaseStudy } from "@/data/projects";
 import { usePortfolioData } from "@/data/PortfolioContext";
 import { CaseStudyModal } from "./CaseStudyModal";
-import { MapPin, ArrowRight, Layers, Eye } from "lucide-react";
+import {
+  MapPin,
+  ArrowRight,
+  Layers,
+  Eye,
+  Search,
+  X,
+  Share2,
+  Check,
+  Calculator,
+} from "lucide-react";
 
-export const ProjectsSection: React.FC = () => {
+interface ProjectsSectionProps {
+  onOpenEstimator?: () => void;
+}
+
+export const ProjectsSection: React.FC<ProjectsSectionProps> = ({ onOpenEstimator }) => {
   const { data } = usePortfolioData();
   const [selectedCategory, setSelectedCategory] = useState<string>("ALL");
+  const [searchQuery, setSearchQuery] = useState<string>("");
   const [activeProject, setActiveProject] = useState<ProjectCaseStudy | null>(null);
+  const [copiedSlug, setCopiedSlug] = useState<string | null>(null);
 
   const activeProjects = data?.projectsData || staticProjects;
   const categories = ["ALL", "INFRASTRUCTURE", "BUILDINGS", "SURVEYING", "ACADEMIC"];
 
-  const filteredProjects =
-    selectedCategory === "ALL"
-      ? activeProjects
-      : activeProjects.filter((p) => p.category === selectedCategory);
+  // Category counts
+  const categoryCounts = useMemo(() => {
+    const counts: Record<string, number> = { ALL: activeProjects.length };
+    activeProjects.forEach((p) => {
+      counts[p.category] = (counts[p.category] || 0) + 1;
+    });
+    return counts;
+  }, [activeProjects]);
+
+  // Filtered by Category + Search Query
+  const filteredProjects = useMemo(() => {
+    return activeProjects.filter((p) => {
+      const matchCat = selectedCategory === "ALL" || p.category === selectedCategory;
+      if (!matchCat) return false;
+
+      if (!searchQuery.trim()) return true;
+      const q = searchQuery.toLowerCase();
+      return (
+        p.title.toLowerCase().includes(q) ||
+        p.location.toLowerCase().includes(q) ||
+        p.summary.toLowerCase().includes(q) ||
+        (p.firm && p.firm.toLowerCase().includes(q)) ||
+        p.tools.some((t) => t.toLowerCase().includes(q))
+      );
+    });
+  }, [activeProjects, selectedCategory, searchQuery]);
+
+  const handleShareProject = (slug: string) => {
+    if (typeof window !== "undefined") {
+      const url = `${window.location.origin}/projects/${slug}`;
+      navigator.clipboard.writeText(url);
+      setCopiedSlug(slug);
+      setTimeout(() => setCopiedSlug(null), 2000);
+    }
+  };
 
   return (
     <section id="projects" className="py-24 relative overflow-hidden">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-        {/* Section Heading per design.md */}
-        <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12">
+        {/* Section Heading & Utilities */}
+        <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-6 mb-10">
           <div>
-            <p className="text-xs font-mono uppercase text-accent font-semibold tracking-widest">
-              CASE STUDIES // PRACTICAL EVIDENCE
-            </p>
+            <div className="flex items-center gap-3">
+              <p className="text-xs font-mono uppercase text-accent font-semibold tracking-widest">
+                CASE STUDIES // PRACTICAL EVIDENCE
+              </p>
+              {onOpenEstimator && (
+                <button
+                  type="button"
+                  onClick={onOpenEstimator}
+                  className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-accent/15 border border-accent/30 text-accent text-[11px] font-mono hover:bg-accent hover:text-white transition-all shadow-sm"
+                >
+                  <Calculator className="w-3.5 h-3.5" />
+                  <span>RCC Material Estimator</span>
+                </button>
+              )}
+            </div>
             <h2 className="text-3xl sm:text-4xl font-extrabold text-text-primary mt-2">
               Selected Projects
             </h2>
@@ -38,23 +97,93 @@ export const ProjectsSection: React.FC = () => {
             </p>
           </div>
 
-          {/* Category Filter Pills (instant client-side filtering) */}
+          {/* Quick Estimator CTA on Mobile */}
+          {onOpenEstimator && (
+            <button
+              type="button"
+              onClick={onOpenEstimator}
+              className="sm:hidden flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-accent/15 border border-accent/30 text-accent text-xs font-mono font-bold"
+            >
+              <Calculator className="w-4 h-4" />
+              <span>Open RCC Concrete Mix Estimator</span>
+            </button>
+          )}
+        </div>
+
+        {/* Filter and Search Bar */}
+        <div className="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-4 mb-8">
+          {/* Category Filter Pills */}
           <div className="flex flex-wrap items-center gap-2 bg-surface p-1.5 rounded-xl border border-border">
-            {categories.map((cat) => (
+            {categories.map((cat) => {
+              const count = categoryCounts[cat] || 0;
+              const isSelected = selectedCategory === cat;
+              return (
+                <button
+                  key={cat}
+                  onClick={() => setSelectedCategory(cat)}
+                  className={`px-3 py-1.5 text-xs font-mono font-semibold rounded-lg transition-all flex items-center gap-1.5 ${
+                    isSelected
+                      ? "bg-accent text-white shadow-md shadow-accent/20"
+                      : "text-text-secondary hover:text-text-primary hover:bg-surface-light"
+                  }`}
+                >
+                  <span>{cat}</span>
+                  <span
+                    className={`text-[10px] px-1.5 py-0.2 rounded-full ${
+                      isSelected ? "bg-white/20 text-white" : "bg-surface-light text-text-muted"
+                    }`}
+                  >
+                    {count}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+
+          {/* Live Search Input */}
+          <div className="relative min-w-[260px] sm:min-w-[300px]">
+            <Search className="w-4 h-4 absolute left-3.5 top-3 text-text-muted" />
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="Search projects by keyword, tool, location..."
+              className="w-full pl-9 pr-9 py-2 rounded-xl bg-surface border border-border text-xs font-mono text-text-primary focus:border-accent focus:outline-none placeholder:text-text-muted/70 transition-colors"
+            />
+            {searchQuery && (
               <button
-                key={cat}
-                onClick={() => setSelectedCategory(cat)}
-                className={`px-3.5 py-1.5 text-xs font-mono font-semibold rounded-lg transition-all ${
-                  selectedCategory === cat
-                    ? "bg-accent text-white shadow-md shadow-accent/20"
-                    : "text-text-secondary hover:text-text-primary hover:bg-surface-light"
-                }`}
+                onClick={() => setSearchQuery("")}
+                className="absolute right-3 top-2.5 text-text-muted hover:text-text-primary"
+                title="Clear search"
               >
-                {cat}
+                <X className="w-4 h-4" />
               </button>
-            ))}
+            )}
           </div>
         </div>
+
+        {/* Search / Filter Status info */}
+        {(searchQuery || selectedCategory !== "ALL") && (
+          <div className="flex items-center justify-between text-xs font-mono text-text-muted mb-6 px-1">
+            <span>
+              Showing {filteredProjects.length} of {activeProjects.length} projects
+              {searchQuery && (
+                <span> matching &ldquo;<span className="text-accent">{searchQuery}</span>&rdquo;</span>
+              )}
+            </span>
+            {(searchQuery || selectedCategory !== "ALL") && (
+              <button
+                onClick={() => {
+                  setSearchQuery("");
+                  setSelectedCategory("ALL");
+                }}
+                className="text-accent hover:underline"
+              >
+                Reset Filters
+              </button>
+            )}
+          </div>
+        )}
 
         {/* Project Cards Grid or Empty State */}
         {filteredProjects.length === 0 ? (
@@ -63,13 +192,16 @@ export const ProjectsSection: React.FC = () => {
               <Layers className="w-6 h-6 text-accent" />
             </div>
             <h3 className="text-lg font-bold text-text-primary">
-              No projects found in this category
+              No matching projects found
             </h3>
             <p className="text-xs text-text-secondary max-w-md mx-auto">
-              No archived projects are currently listed under &ldquo;{selectedCategory}&rdquo;. Try selecting another engineering category.
+              No engineering records matched your filter or search query &ldquo;{searchQuery || selectedCategory}&rdquo;. Try another term like &ldquo;ETABS&rdquo;, &ldquo;Tokha&rdquo;, or &ldquo;Piling&rdquo;.
             </p>
             <button
-              onClick={() => setSelectedCategory("ALL")}
+              onClick={() => {
+                setSelectedCategory("ALL");
+                setSearchQuery("");
+              }}
               className="px-4 py-2 rounded-xl bg-accent text-white text-xs font-mono font-semibold hover:bg-accent-soft transition-colors"
             >
               Reset to All Projects
@@ -94,7 +226,7 @@ export const ProjectsSection: React.FC = () => {
                     sizes="(max-width: 768px) 100vw, 50vw"
                     className="object-cover group-hover:scale-105 transition-transform duration-500"
                   />
-                  
+
                   {/* Category & Number Badges */}
                   <div className="absolute top-4 left-4 right-4 flex items-center justify-between pointer-events-none">
                     <span className="font-mono text-xs font-bold px-3 py-1 rounded-full bg-[#0B0F14]/90 text-accent border border-border backdrop-blur-md">
@@ -117,9 +249,12 @@ export const ProjectsSection: React.FC = () => {
                 {/* Card Body */}
                 <div className="p-6 sm:p-7 space-y-4 flex-1 flex flex-col justify-between">
                   <div className="space-y-2">
-                    <div className="flex items-center gap-2 text-xs font-mono text-text-muted">
-                      <MapPin className="w-3.5 h-3.5 text-accent" />
-                      <span>{proj.location}</span>
+                    <div className="flex items-center justify-between text-xs font-mono text-text-muted">
+                      <div className="flex items-center gap-2">
+                        <MapPin className="w-3.5 h-3.5 text-accent" />
+                        <span>{proj.location}</span>
+                      </div>
+                      <span className="text-[11px] font-mono text-text-muted">{proj.duration}</span>
                     </div>
 
                     <h3 className="text-xl font-bold text-text-primary group-hover:text-accent transition-colors leading-snug">
@@ -155,12 +290,26 @@ export const ProjectsSection: React.FC = () => {
                       <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
                     </button>
 
-                    <Link
-                      href={`/projects/${proj.slug}`}
-                      className="text-[11px] font-mono text-text-muted hover:text-text-primary underline transition-colors"
-                    >
-                      Dedicated Page →
-                    </Link>
+                    <div className="flex items-center gap-3">
+                      <button
+                        type="button"
+                        onClick={() => handleShareProject(proj.slug)}
+                        className="p-1.5 rounded-lg text-text-muted hover:text-accent hover:bg-surface-light transition-colors"
+                        title="Copy shareable link"
+                      >
+                        {copiedSlug === proj.slug ? (
+                          <Check className="w-3.5 h-3.5 text-emerald-400" />
+                        ) : (
+                          <Share2 className="w-3.5 h-3.5" />
+                        )}
+                      </button>
+                      <Link
+                        href={`/projects/${proj.slug}`}
+                        className="text-[11px] font-mono text-text-muted hover:text-text-primary underline transition-colors"
+                      >
+                        Dedicated Page →
+                      </Link>
+                    </div>
                   </div>
                 </div>
               </div>

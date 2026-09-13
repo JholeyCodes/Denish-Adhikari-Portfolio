@@ -16,19 +16,27 @@ import { CTASection } from "@/components/CTASection";
 import { ContactSection } from "@/components/ContactSection";
 import { Footer } from "@/components/Footer";
 import { ResumeModal } from "@/components/ResumeModal";
+import { ConcreteEstimatorModal } from "@/components/ConcreteEstimatorModal";
 import { PortfolioProvider } from "@/data/PortfolioContext";
 
 export default function Home() {
   const [resumeOpen, setResumeOpen] = useState(false);
+  const [estimatorOpen, setEstimatorOpen] = useState(false);
 
   return (
     <PortfolioProvider>
       <main className="min-h-screen bg-[#0B0F14] text-text-primary">
       {/* Sticky Header */}
-      <Navbar onOpenResume={() => setResumeOpen(true)} />
+      <Navbar
+        onOpenResume={() => setResumeOpen(true)}
+        onOpenEstimator={() => setEstimatorOpen(true)}
+      />
 
       {/* Hero Section */}
-      <Hero onOpenResume={() => setResumeOpen(true)} />
+      <Hero
+        onOpenResume={() => setResumeOpen(true)}
+        onOpenEstimator={() => setEstimatorOpen(true)}
+      />
 
       {/* Engineering at a Glance (Stats) */}
       <StatsCounter />
@@ -40,7 +48,7 @@ export default function Home() {
       <Expertise />
 
       {/* Selected Projects (Filterable Grid + Case Studies) */}
-      <ProjectsSection />
+      <ProjectsSection onOpenEstimator={() => setEstimatorOpen(true)} />
 
       {/* Professional Experience (Vertical Timeline) */}
       <ExperienceSection />
@@ -70,6 +78,12 @@ export default function Home() {
       <ResumeModal
         isOpen={resumeOpen}
         onClose={() => setResumeOpen(false)}
+      />
+
+      {/* RCC Concrete & Material Estimator Tool */}
+      <ConcreteEstimatorModal
+        isOpen={estimatorOpen}
+        onClose={() => setEstimatorOpen(false)}
       />
     </main>
     </PortfolioProvider>
