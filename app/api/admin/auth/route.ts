@@ -95,6 +95,12 @@ export async function POST(request: NextRequest) {
         expiresMinutes,
       });
 
+      if (!emailResult.success) {
+        return NextResponse.json({
+          error: emailResult.error || "Failed to dispatch verification email. Please verify RESEND_API_KEY.",
+        }, { status: 502 });
+      }
+
       return NextResponse.json({
         success: true,
         step: 2,
@@ -125,6 +131,12 @@ export async function POST(request: NextRequest) {
         otp,
         expiresMinutes,
       });
+
+      if (!emailResult.success) {
+        return NextResponse.json({
+          error: emailResult.error || "Failed to resend verification email.",
+        }, { status: 502 });
+      }
 
       return NextResponse.json({
         success: true,

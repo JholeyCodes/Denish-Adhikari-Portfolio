@@ -85,7 +85,7 @@ export async function sendOtpVerificationEmail({
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          from: process.env.MAIL_FROM || "Security <security@denishadhikari.com>",
+          from: process.env.MAIL_FROM || "Er. Denish Security <onboarding@resend.dev>",
           to: [toEmail],
           subject,
           html: htmlContent,
@@ -97,10 +97,22 @@ export async function sendOtpVerificationEmail({
         return { success: true, provider: "resend", maskedEmail: masked };
       } else {
         const errJson = await res.json().catch(() => ({}));
-        console.warn("[AUTH 2FA] Resend failed, falling back:", errJson);
+        console.error("[AUTH 2FA] Resend failed:", errJson);
+        return {
+          success: false,
+          provider: "resend",
+          maskedEmail: masked,
+          error: errJson.message || "Resend email delivery failed. Please check your RESEND_API_KEY or verified domains.",
+        };
       }
     } catch (e: any) {
-      console.warn("[AUTH 2FA] Resend network error:", e?.message);
+      console.error("[AUTH 2FA] Resend network error:", e?.message);
+      return {
+        success: false,
+        provider: "resend",
+        maskedEmail: masked,
+        error: `Resend network connection failed: ${e?.message}`,
+      };
     }
   }
 
@@ -128,23 +140,32 @@ export async function sendOtpVerificationEmail({
       if (res.ok) {
         console.log(`[AUTH 2FA] OTP email dispatched via Brevo to ${toEmail}`);
         return { success: true, provider: "brevo", maskedEmail: masked };
+      } else {
+        const errJson = await res.json().catch(() => ({}));
+        return {
+          success: false,
+          provider: "brevo",
+          maskedEmail: masked,
+          error: errJson.message || "Brevo delivery failed",
+        };
       }
     } catch (e: any) {
       console.warn("[AUTH 2FA] Brevo error:", e?.message);
     }
   }
 
-  // 3. Development / Zero-Config Fallback Mode:
-  // When no 3rd-party transactional mail API key is supplied, log to server console
-  // and provide developer fallback so Er. Denish or tester can log in seamlessly.
+  // 3. Fallback when neither RESEND_API_KEY nor BREVO_API_KEY is configured
   console.log("=================================================");
   console.log(`🔑 [ADMIN 2FA EMAIL OTP DISPATCH]`);
   console.log(`📨 Recipient: ${toEmail} (${engineerName})`);
   console.log(`🔢 6-Digit One-Time Password: [ ${otp} ]`);
   console.log(`⏳ Valid for: ${expiresMinutes} minutes`);
+  console.log("=================================================");
+
   return {
-    success: true,
+    success: false,
     provider: "local_fallback",
     maskedEmail: masked,
+    error: "No email service configured. Please set RESEND_API_KEY in your .env.local (or Vercel Environment Variables) to receive OTP emails in your inbox.",
   };
 }
