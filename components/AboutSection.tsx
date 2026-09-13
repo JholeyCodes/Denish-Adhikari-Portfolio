@@ -2,7 +2,8 @@
 
 import React from "react";
 import Image from "next/image";
-import { siteData } from "@/data/siteData";
+import { siteData as staticSiteData } from "@/data/siteData";
+import { usePortfolioData } from "@/data/PortfolioContext";
 import { FileText, Mail, Phone, MapPin, GraduationCap, Award, Compass, HardHat } from "lucide-react";
 
 interface AboutSectionProps {
@@ -10,6 +11,8 @@ interface AboutSectionProps {
 }
 
 export const AboutSection: React.FC<AboutSectionProps> = ({ onOpenResume }) => {
+  const { data } = usePortfolioData();
+  const personal = data?.siteData?.personal || staticSiteData.personal;
   return (
     <section id="about" className="py-24 relative overflow-hidden">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
@@ -57,12 +60,12 @@ export const AboutSection: React.FC<AboutSectionProps> = ({ onOpenResume }) => {
             </div>
 
             <p className="text-base text-text-secondary leading-relaxed">
-              {siteData.personal.fullBio}
+              {personal.fullBio || personal.shortBio}
             </p>
 
             {/* Philosophy Block */}
             <blockquote className="p-4 rounded-xl bg-surface border-l-4 border-accent text-sm sm:text-base italic text-text-primary">
-              &ldquo;{siteData.personal.philosophy}&rdquo;
+              &ldquo;{personal.philosophy || "Designing and executing safe, compliant, and durable infrastructure where technical precision and structural safety come first."}&rdquo;
             </blockquote>
 
             {/* Quick Facts 2-Column Technical Grid */}
@@ -71,7 +74,7 @@ export const AboutSection: React.FC<AboutSectionProps> = ({ onOpenResume }) => {
                 <Award className="w-4 h-4 text-accent mt-0.5" />
                 <div>
                   <div className="text-[11px] font-mono text-text-muted uppercase">Council Registration</div>
-                  <div className="text-sm font-semibold text-text-primary">NEC Licensed (Oct 2024)</div>
+                  <div className="text-sm font-semibold text-text-primary">{personal.license} ({personal.licenseDate})</div>
                 </div>
               </div>
 
@@ -87,7 +90,7 @@ export const AboutSection: React.FC<AboutSectionProps> = ({ onOpenResume }) => {
                 <MapPin className="w-4 h-4 text-accent mt-0.5" />
                 <div>
                   <div className="text-[11px] font-mono text-text-muted uppercase">Primary Location</div>
-                  <div className="text-sm font-semibold text-text-primary">Kathmandu, Nepal</div>
+                  <div className="text-sm font-semibold text-text-primary">{personal.location}</div>
                 </div>
               </div>
 
@@ -95,7 +98,7 @@ export const AboutSection: React.FC<AboutSectionProps> = ({ onOpenResume }) => {
                 <Mail className="w-4 h-4 text-accent mt-0.5" />
                 <div>
                   <div className="text-[11px] font-mono text-text-muted uppercase">Official Email</div>
-                  <div className="text-sm font-semibold text-text-primary truncate">den.adh0709@gmail.com</div>
+                  <div className="text-sm font-semibold text-text-primary truncate">{personal.email}</div>
                 </div>
               </div>
             </div>

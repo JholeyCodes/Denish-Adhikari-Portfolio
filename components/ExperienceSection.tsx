@@ -1,10 +1,14 @@
 "use client";
 
 import React from "react";
-import { experienceData } from "@/data/experience";
+import { experienceData as staticExperience } from "@/data/experience";
+import { usePortfolioData } from "@/data/PortfolioContext";
 import { Briefcase, MapPin, Calendar, CheckCircle2 } from "lucide-react";
 
 export const ExperienceSection: React.FC = () => {
+  const { data } = usePortfolioData();
+  const activeExperience = data?.experienceData || staticExperience;
+
   return (
     <section id="experience" className="py-24 bg-surface/30 border-t border-border/60 relative">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -22,7 +26,7 @@ export const ExperienceSection: React.FC = () => {
 
         {/* Vertical Timeline */}
         <div className="max-w-4xl mx-auto relative border-l-2 border-border/80 pl-6 sm:pl-10 space-y-12">
-          {experienceData.map((exp, index) => (
+          {activeExperience.map((exp, index) => (
             <div key={index} className="relative group">
               {/* Timeline Marker Dot */}
               <div className="absolute -left-[31px] sm:-left-[47px] top-1.5 w-5 h-5 rounded-full bg-[#0B0F14] border-4 border-accent shadow-md group-hover:scale-125 transition-transform" />

@@ -3,20 +3,23 @@
 import React, { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { projectsData, ProjectCaseStudy } from "@/data/projects";
+import { projectsData as staticProjects, ProjectCaseStudy } from "@/data/projects";
+import { usePortfolioData } from "@/data/PortfolioContext";
 import { CaseStudyModal } from "./CaseStudyModal";
 import { MapPin, ArrowRight, Layers, Eye } from "lucide-react";
 
 export const ProjectsSection: React.FC = () => {
+  const { data } = usePortfolioData();
   const [selectedCategory, setSelectedCategory] = useState<string>("ALL");
   const [activeProject, setActiveProject] = useState<ProjectCaseStudy | null>(null);
 
+  const activeProjects = data?.projectsData || staticProjects;
   const categories = ["ALL", "INFRASTRUCTURE", "BUILDINGS", "SURVEYING", "ACADEMIC"];
 
   const filteredProjects =
     selectedCategory === "ALL"
-      ? projectsData
-      : projectsData.filter((p) => p.category === selectedCategory);
+      ? activeProjects
+      : activeProjects.filter((p) => p.category === selectedCategory);
 
   return (
     <section id="projects" className="py-24 relative overflow-hidden">

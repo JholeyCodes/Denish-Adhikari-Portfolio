@@ -2,7 +2,8 @@
 
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
-import { siteData } from "@/data/siteData";
+import { siteData as staticSiteData } from "@/data/siteData";
+import { usePortfolioData } from "@/data/PortfolioContext";
 import { FileText, Menu, X, ShieldCheck, Compass } from "lucide-react";
 
 interface NavbarProps {
@@ -10,6 +11,10 @@ interface NavbarProps {
 }
 
 export const Navbar: React.FC<NavbarProps> = ({ onOpenResume }) => {
+  const { data } = usePortfolioData();
+  const personal = data?.siteData?.personal || staticSiteData.personal;
+  const navLinks = data?.siteData?.navLinks || staticSiteData.navLinks;
+
   const [scrolled, setScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [activeSection, setActiveSection] = useState("hero");
@@ -55,7 +60,7 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenResume }) => {
           <div>
             <div className="flex items-center gap-2">
               <span className="font-bold text-text-primary text-base tracking-wide group-hover:text-accent transition-colors">
-                {siteData.personal.name}
+                {personal.name}
               </span>
               <span className="hidden sm:inline-flex items-center gap-1 text-[10px] font-mono font-semibold px-2 py-0.5 rounded bg-emerald-950/60 text-emerald-400 border border-emerald-800/40">
                 <ShieldCheck className="w-3 h-3 text-emerald-400" />
@@ -70,7 +75,7 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenResume }) => {
 
         {/* Desktop Navigation */}
         <nav className="hidden lg:flex items-center gap-1">
-          {siteData.navLinks.map((link) => {
+          {navLinks.map((link) => {
             const sectionId = link.href.replace("#", "");
             const isActive = activeSection === sectionId;
             return (
@@ -128,7 +133,7 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenResume }) => {
             </span>
           </div>
           <div className="grid grid-cols-2 gap-2 pt-2">
-            {siteData.navLinks.map((link) => (
+            {navLinks.map((link) => (
               <a
                 key={link.label}
                 href={link.href}

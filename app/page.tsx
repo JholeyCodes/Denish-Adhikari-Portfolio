@@ -16,12 +16,14 @@ import { CTASection } from "@/components/CTASection";
 import { ContactSection } from "@/components/ContactSection";
 import { Footer } from "@/components/Footer";
 import { ResumeModal } from "@/components/ResumeModal";
+import { PortfolioProvider } from "@/data/PortfolioContext";
 
 export default function Home() {
   const [resumeOpen, setResumeOpen] = useState(false);
 
   return (
-    <main className="min-h-screen bg-[#0B0F14] text-text-primary">
+    <PortfolioProvider>
+      <main className="min-h-screen bg-[#0B0F14] text-text-primary">
       {/* Sticky Header */}
       <Navbar onOpenResume={() => setResumeOpen(true)} />
 
@@ -70,5 +72,6 @@ export default function Home() {
         onClose={() => setResumeOpen(false)}
       />
     </main>
+    </PortfolioProvider>
   );
 }

@@ -1,10 +1,11 @@
 "use client";
 
 import React from "react";
-import { siteData } from "@/data/siteData";
-import { experienceData } from "@/data/experience";
+import { siteData as staticSiteData } from "@/data/siteData";
+import { experienceData as staticExperience } from "@/data/experience";
 import { educationData } from "@/data/education";
-import { skillsData } from "@/data/skills";
+import { skillsData as staticSkills } from "@/data/skills";
+import { usePortfolioData } from "@/data/PortfolioContext";
 import { X, Printer, Download, Mail, Phone, MapPin, Award, CheckCircle2 } from "lucide-react";
 
 interface ResumeModalProps {
@@ -13,6 +14,11 @@ interface ResumeModalProps {
 }
 
 export const ResumeModal: React.FC<ResumeModalProps> = ({ isOpen, onClose }) => {
+  const { data } = usePortfolioData();
+  const personal = data?.siteData?.personal || staticSiteData.personal;
+  const activeExperience = data?.experienceData || staticExperience;
+  const activeSkills = data?.skillsData || staticSkills;
+
   if (!isOpen) return null;
 
   const handlePrint = () => {
@@ -57,25 +63,25 @@ export const ResumeModal: React.FC<ResumeModalProps> = ({ isOpen, onClose }) => 
           {/* Header */}
           <div className="text-center pb-6 border-b border-border space-y-2">
             <h1 className="text-3xl sm:text-4xl font-black tracking-tight text-text-primary uppercase">
-              DENISH ADHIKARI
+              {personal.name}
             </h1>
             <p className="text-sm font-mono text-accent font-semibold">
-              Civil Engineer • Nepal Engineering Council (NEC Registered)
+              {personal.role} • {personal.license}
             </p>
             <div className="flex flex-wrap items-center justify-center gap-4 text-xs font-mono text-text-secondary pt-1">
               <span className="flex items-center gap-1">
                 <Phone className="w-3.5 h-3.5 text-accent" />
-                +977 9867730557
+                {personal.phone}
               </span>
               <span>•</span>
               <span className="flex items-center gap-1">
                 <Mail className="w-3.5 h-3.5 text-accent" />
-                den.adh0709@gmail.com
+                {personal.email}
               </span>
               <span>•</span>
               <span className="flex items-center gap-1">
                 <MapPin className="w-3.5 h-3.5 text-accent" />
-                Kathmandu, Nepal
+                {personal.location}
               </span>
             </div>
           </div>
@@ -86,7 +92,7 @@ export const ResumeModal: React.FC<ResumeModalProps> = ({ isOpen, onClose }) => 
               PROFESSIONAL SUMMARY
             </h2>
             <p className="text-xs sm:text-sm text-text-secondary leading-relaxed">
-              Civil Engineer with practical experience in wastewater treatment plant construction, reinforced concrete (RCC) works, precision surveying, and construction quality control. Skilled in Total Station and Auto Level operations, reinforcement inspection, concrete testing, and site supervision. Capable of managing workforce activities, verifying structural drawings, and maintaining technical compliance on construction sites. Seeking opportunities in construction engineering and site operations.
+              {personal.fullBio || personal.shortBio}
             </p>
           </div>
 
@@ -136,7 +142,7 @@ export const ResumeModal: React.FC<ResumeModalProps> = ({ isOpen, onClose }) => 
               KEY PROJECT EXPERIENCE
             </h2>
 
-            {experienceData.map((exp, i) => (
+            {activeExperience.map((exp, i) => (
               <div key={i} className="space-y-2">
                 <div className="flex flex-col sm:flex-row sm:justify-between sm:items-baseline">
                   <div>

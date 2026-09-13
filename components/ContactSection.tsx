@@ -1,10 +1,14 @@
 "use client";
 
 import React, { useState } from "react";
-import { siteData } from "@/data/siteData";
+import { siteData as staticSiteData } from "@/data/siteData";
+import { usePortfolioData } from "@/data/PortfolioContext";
 import { Mail, Phone, MapPin, Send, CheckCircle2, ShieldCheck, MessageSquare } from "lucide-react";
 
 export const ContactSection: React.FC = () => {
+  const { data } = usePortfolioData();
+  const personal = data?.siteData?.personal || staticSiteData.personal;
+
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -47,16 +51,16 @@ export const ContactSection: React.FC = () => {
                   DIRECT CONTACT CHANNELS
                 </span>
                 <h3 className="text-xl font-bold text-text-primary mt-1">
-                  Er. Denish Adhikari
+                  {personal.name}
                 </h3>
                 <p className="text-xs text-text-muted font-mono mt-0.5">
-                  Registered Civil Engineer • Nepal Engineering Council
+                  {personal.license || "Registered Civil Engineer • Nepal Engineering Council"}
                 </p>
               </div>
 
               {/* WhatsApp Instant Chat Button */}
               <a
-                href="https://wa.me/9779867730557?text=Hello%20Er.%20Denish,%20I%20reviewed%20your%20civil%20engineering%20portfolio%20and%20would%20like%20to%20discuss%20a%20project."
+                href={`https://wa.me/${personal.phone.replace(/[^0-9]/g, "")}?text=Hello%20${encodeURIComponent(personal.name)},%20I%20reviewed%20your%20civil%20engineering%20portfolio%20and%20would%20like%20to%20discuss%20a%20project.`}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="flex items-start gap-4 p-3.5 rounded-xl bg-emerald-950/40 border border-emerald-700/50 hover:border-emerald-400 transition-all group shadow-md"
@@ -72,13 +76,13 @@ export const ContactSection: React.FC = () => {
                   <div className="text-sm font-bold text-text-primary group-hover:text-emerald-400 transition-colors">
                     Chat on WhatsApp →
                   </div>
-                  <span className="text-[10px] text-text-muted">+977 9867730557 (Instant Response)</span>
+                  <span className="text-[10px] text-text-muted">{personal.phone} (Instant Response)</span>
                 </div>
               </a>
 
               {/* Direct Phone Call Card */}
               <a
-                href="tel:+9779867730557"
+                href={`tel:${personal.phone.replace(/\s+/g, "")}`}
                 className="flex items-start gap-4 p-3.5 rounded-xl bg-surface-light/50 border border-border/70 hover:border-accent transition-colors group"
               >
                 <div className="w-10 h-10 rounded-lg bg-accent/10 border border-accent/30 flex items-center justify-center text-accent group-hover:scale-110 transition-transform">
@@ -87,7 +91,7 @@ export const ContactSection: React.FC = () => {
                 <div>
                   <span className="text-[11px] font-mono text-text-muted uppercase">Phone Voice Call</span>
                   <div className="text-sm font-bold text-text-primary group-hover:text-accent transition-colors">
-                    +977 9867730557
+                    {personal.phone}
                   </div>
                   <span className="text-[10px] text-text-muted">Available 8:00 AM – 7:00 PM NPT</span>
                 </div>
@@ -95,7 +99,7 @@ export const ContactSection: React.FC = () => {
 
               {/* Email Card */}
               <a
-                href="mailto:den.adh0709@gmail.com"
+                href={`mailto:${personal.email}`}
                 className="flex items-start gap-4 p-3.5 rounded-xl bg-surface-light/50 border border-border/70 hover:border-accent transition-colors group"
               >
                 <div className="w-10 h-10 rounded-lg bg-accent/10 border border-accent/30 flex items-center justify-center text-accent group-hover:scale-110 transition-transform">
@@ -104,7 +108,7 @@ export const ContactSection: React.FC = () => {
                 <div>
                   <span className="text-[11px] font-mono text-text-muted uppercase">Official Email</span>
                   <div className="text-sm font-bold text-text-primary group-hover:text-accent transition-colors truncate">
-                    den.adh0709@gmail.com
+                    {personal.email}
                   </div>
                   <span className="text-[10px] text-text-muted">Direct Engineering Inbox</span>
                 </div>
@@ -118,7 +122,7 @@ export const ContactSection: React.FC = () => {
                 <div>
                   <span className="text-[11px] font-mono text-text-muted uppercase">Location &amp; Base</span>
                   <div className="text-sm font-bold text-text-primary">
-                    Tokha / Kathmandu, Nepal
+                    {personal.location}
                   </div>
                   <span className="text-[10px] text-text-muted">Open to site deployment across Nepal</span>
                 </div>

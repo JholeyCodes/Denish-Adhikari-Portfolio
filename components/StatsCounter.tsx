@@ -1,10 +1,13 @@
 "use client";
 
 import React from "react";
-import { siteData } from "@/data/siteData";
+import { siteData as staticSiteData } from "@/data/siteData";
+import { usePortfolioData } from "@/data/PortfolioContext";
 import { ShieldCheck, Users, Compass, Briefcase } from "lucide-react";
 
 export const StatsCounter: React.FC = () => {
+  const { data } = usePortfolioData();
+  const stats = data?.siteData?.stats || staticSiteData.stats;
   const statIcons = [ShieldCheck, Users, Compass, Briefcase];
 
   return (
@@ -20,7 +23,7 @@ export const StatsCounter: React.FC = () => {
         </div>
 
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8">
-          {siteData.stats.map((stat, idx) => {
+          {stats.map((stat, idx) => {
             const Icon = statIcons[idx % statIcons.length];
             return (
               <div

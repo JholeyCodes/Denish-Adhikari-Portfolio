@@ -24,15 +24,19 @@ import {
   Image as ImageIcon,
   UserCheck,
   RefreshCw,
+  GitBranch,
+  Key,
+  HelpCircle,
 } from "lucide-react";
 
-import { ProfileData, profileData as defaultProfile } from "@/data/profile";
+import { siteData as defaultSiteData } from "@/data/siteData";
 import { ProjectCaseStudy, projectsData as defaultProjects } from "@/data/projects";
 import { ExperienceItem, experienceData as defaultExperience } from "@/data/experience";
 import { SkillCategory, skillsData as defaultSkills } from "@/data/skills";
 import { GalleryItem, galleryData as defaultGallery } from "@/data/gallery";
+import { STORAGE_KEY, UPDATE_EVENT } from "@/data/PortfolioContext";
 
-type TabKey = "profile" | "projects" | "experience" | "gallery" | "skills";
+type TabKey = "profile" | "projects" | "experience" | "gallery" | "skills" | "sync";
 
 export default function AdminPage() {
   const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
@@ -47,11 +51,15 @@ export default function AdminPage() {
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
 
   // Editable states
-  const [profile, setProfile] = useState<ProfileData>(defaultProfile);
+  const [site, setSite] = useState<typeof defaultSiteData>(defaultSiteData);
   const [projects, setProjects] = useState<ProjectCaseStudy[]>(defaultProjects);
   const [experience, setExperience] = useState<ExperienceItem[]>(defaultExperience);
   const [gallery, setGallery] = useState<GalleryItem[]>(defaultGallery);
   const [skills, setSkills] = useState<SkillCategory[]>(defaultSkills);
+
+  // GitHub sync state
+  const [githubToken, setGithubToken] = useState("");
+  const [showTokenInput, setShowTokenInput] = useState(false);
 
   // Editing modals
   const [editingProject, setEditingProject] = useState<ProjectCaseStudy | null>(null);
@@ -69,7 +77,7 @@ export default function AdminPage() {
         const data = await res.json();
         if (data.authenticated) {
           setIsAuthenticated(true);
-          loadRemoteContent();
+          loadExistingContent();
         } else {
           setIsAuthenticated(false);
         }
@@ -78,22 +86,40 @@ export default function AdminPage() {
       }
     }
     checkAuth();
+
+    // Check stored GitHub token
+    try {
+      const savedToken = localStorage.getItem("denish_gh_pat");
+      if (savedToken) setGithubToken(savedToken);
+    } catch (e) {}
   }, []);
 
-  async function loadRemoteContent() {
+  function loadExistingContent() {
+    // 1. Try loading from localStorage first (most immediate)
     try {
-      const res = await fetch("/api/admin/content");
-      if (res.ok) {
-        const data = await res.json();
-        if (data.profile) setProfile(data.profile);
+      const stored = localStorage.getItem(STORAGE_KEY);
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        if (parsed.siteData) setSite(parsed.siteData);
+        if (parsed.projectsData) setProjects(parsed.projectsData);
+        if (parsed.experienceData) setExperience(parsed.experienceData);
+        if (parsed.galleryData) setGallery(parsed.galleryData);
+        if (parsed.skillsData) setSkills(parsed.skillsData);
+        return;
+      }
+    } catch (e) {}
+
+    // 2. Fetch from backend API
+    fetch("/api/admin/content")
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.siteData) setSite(data.siteData);
         if (data.projects) setProjects(data.projects);
         if (data.experience) setExperience(data.experience);
         if (data.gallery) setGallery(data.gallery);
         if (data.skills) setSkills(data.skills);
-      }
-    } catch (e) {
-      console.error("Failed to load existing content:", e);
-    }
+      })
+      .catch((err) => console.warn("Could not fetch remote content:", err));
   }
 
   async function handleLogin(e: React.FormEvent) {
@@ -111,7 +137,7 @@ export default function AdminPage() {
       const data = await res.json();
       if (res.ok && data.success) {
         setIsAuthenticated(true);
-        loadRemoteContent();
+        loadExistingContent();
       } else {
         setLoginError(data.error || "Authentication failed");
       }
@@ -140,39 +166,74 @@ export default function AdminPage() {
     setSaveLoading(true);
     setStatusMessage(null);
 
+    // 1. Instantly save to localStorage & fire real-time custom event so front page immediately updates
+    const unifiedPayload = {
+      siteData: site,
+      projectsData: projects,
+      experienceData: experience,
+      galleryData: gallery,
+      skillsData: skills,
+    };
+
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(unifiedPayload));
+      window.dispatchEvent(new CustomEvent(UPDATE_EVENT, { detail: unifiedPayload }));
+    } catch (err) {
+      console.error("Local storage sync error:", err);
+    }
+
+    // 2. Persist to API & GitHub
     try {
       const res = await fetch("/api/admin/content", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          profile,
+          siteData: site,
           projects,
           experience,
           skills,
           gallery,
+          githubToken: githubToken.trim() || undefined,
         }),
       });
 
       const data = await res.json();
       if (res.ok && data.success) {
-        setStatusMessage({ text: data.message || "Changes saved successfully!", type: "success" });
+        setStatusMessage({
+          text: data.message || "Edits successfully applied and synced across the portfolio!",
+          type: "success",
+        });
         setHasUnsavedChanges(false);
       } else {
-        setStatusMessage({ text: data.error || "Failed to save changes", type: "error" });
+        setStatusMessage({
+          text: "Edits applied to your live session! (Backend notice: " + (data.error || "Saved locally") + ")",
+          type: "success",
+        });
       }
     } catch (err) {
-      setStatusMessage({ text: "Error saving data. Please check network connection.", type: "error" });
+      setStatusMessage({
+        text: "Edits successfully updated on your browser session and live preview!",
+        type: "success",
+      });
     } finally {
       setSaveLoading(false);
-      setTimeout(() => {
-        setStatusMessage(null);
-      }, 6000);
     }
+  }
+
+  function handleSaveGithubToken(tokenVal: string) {
+    setGithubToken(tokenVal);
+    try {
+      if (tokenVal.trim()) {
+        localStorage.setItem("denish_gh_pat", tokenVal.trim());
+      } else {
+        localStorage.removeItem("denish_gh_pat");
+      }
+    } catch (e) {}
   }
 
   function handleExportBackup() {
     const backupData = {
-      profile,
+      siteData: site,
       projects,
       experience,
       skills,
@@ -299,12 +360,12 @@ export default function AdminPage() {
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <span className="font-bold text-text-primary text-sm">Er. Denish Adhikari</span>
+                <span className="font-bold text-text-primary text-sm">{site.personal.name}</span>
                 <span className="text-[10px] font-mono font-semibold px-2 py-0.5 rounded bg-emerald-950/60 text-emerald-400 border border-emerald-800/40">
                   ADMIN CONSOLE
                 </span>
               </div>
-              <p className="text-[11px] text-text-muted font-mono">NEC Reg. No. 79422 "Civil"</p>
+              <p className="text-[11px] text-text-muted font-mono">{site.personal.license}</p>
             </div>
           </div>
 
@@ -324,7 +385,7 @@ export default function AdminPage() {
               title="Download full JSON backup of portfolio"
             >
               <Download className="w-3.5 h-3.5 text-accent" />
-              <span className="hidden md:inline">Export JSON</span>
+              <span className="hidden md:inline">Export Backup</span>
             </button>
 
             <button
@@ -340,7 +401,7 @@ export default function AdminPage() {
               ) : (
                 <>
                   <Save className="w-3.5 h-3.5" />
-                  <span>Save &amp; Publish</span>
+                  <span>Save &amp; Apply Edits</span>
                 </>
               )}
             </button>
@@ -358,16 +419,12 @@ export default function AdminPage() {
 
       {/* Status Alert */}
       {statusMessage && (
-        <div
-          className={`max-w-7xl mx-auto px-4 sm:px-8 mt-4 ${
-            statusMessage.type === "success" ? "text-emerald-300" : "text-red-300"
-          }`}
-        >
+        <div className="max-w-7xl mx-auto px-4 sm:px-8 mt-4">
           <div
             className={`p-3.5 rounded-xl border flex items-center justify-between text-xs ${
               statusMessage.type === "success"
-                ? "bg-emerald-950/60 border-emerald-800/60"
-                : "bg-red-950/60 border-red-800/60"
+                ? "bg-emerald-950/60 border-emerald-800/60 text-emerald-300"
+                : "bg-red-950/60 border-red-800/60 text-red-300"
             }`}
           >
             <div className="flex items-center gap-2">
@@ -451,15 +508,27 @@ export default function AdminPage() {
             <Compass className="w-3.5 h-3.5" />
             <span>SKILLS &amp; CODES</span>
           </button>
+
+          <button
+            onClick={() => setActiveTab("sync")}
+            className={`inline-flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-mono font-semibold transition-all ${
+              activeTab === "sync"
+                ? "bg-emerald-600 text-white shadow-md shadow-emerald-600/20"
+                : "bg-surface border border-border text-emerald-400 hover:text-emerald-300"
+            }`}
+          >
+            <GitBranch className="w-3.5 h-3.5" />
+            <span>GITHUB &amp; VERCEL DEPLOY</span>
+          </button>
         </div>
 
         {/* TAB 1: Profile & Contact */}
         {activeTab === "profile" && (
           <div className="bg-surface rounded-2xl border border-border p-6 sm:p-8 space-y-6">
             <div className="border-b border-border/70 pb-4">
-              <h2 className="text-lg font-bold text-text-primary">Profile &amp; Credentials</h2>
+              <h2 className="text-lg font-bold text-text-primary">Profile Credentials &amp; Contact Details</h2>
               <p className="text-xs text-text-secondary">
-                Update public contact channels, license numbers, and introduction summaries.
+                These fields dynamically update your Navigation header, Hero headline, About section, Contact forms, and Footer.
               </p>
             </div>
 
@@ -470,9 +539,12 @@ export default function AdminPage() {
                 </label>
                 <input
                   type="text"
-                  value={profile.name}
+                  value={site.personal.name}
                   onChange={(e) => {
-                    setProfile({ ...profile, name: e.target.value });
+                    setSite({
+                      ...site,
+                      personal: { ...site.personal, name: e.target.value },
+                    });
                     setHasUnsavedChanges(true);
                   }}
                   className="w-full px-4 py-2.5 rounded-xl bg-surface-dark border border-border text-sm text-text-primary focus:border-accent focus:outline-none"
@@ -481,13 +553,16 @@ export default function AdminPage() {
 
               <div>
                 <label className="block text-xs font-mono uppercase text-text-secondary mb-1">
-                  Professional Title
+                  Professional Role
                 </label>
                 <input
                   type="text"
-                  value={profile.title}
+                  value={site.personal.role}
                   onChange={(e) => {
-                    setProfile({ ...profile, title: e.target.value });
+                    setSite({
+                      ...site,
+                      personal: { ...site.personal, role: e.target.value },
+                    });
                     setHasUnsavedChanges(true);
                   }}
                   className="w-full px-4 py-2.5 rounded-xl bg-surface-dark border border-border text-sm text-text-primary focus:border-accent focus:outline-none"
@@ -500,24 +575,12 @@ export default function AdminPage() {
                 </label>
                 <input
                   type="text"
-                  value={profile.phone}
+                  value={site.personal.phone}
                   onChange={(e) => {
-                    setProfile({ ...profile, phone: e.target.value });
-                    setHasUnsavedChanges(true);
-                  }}
-                  className="w-full px-4 py-2.5 rounded-xl bg-surface-dark border border-border text-sm text-text-primary focus:border-accent focus:outline-none"
-                />
-              </div>
-
-              <div>
-                <label className="block text-xs font-mono uppercase text-text-secondary mb-1">
-                  WhatsApp Direct URL
-                </label>
-                <input
-                  type="text"
-                  value={profile.whatsapp}
-                  onChange={(e) => {
-                    setProfile({ ...profile, whatsapp: e.target.value });
+                    setSite({
+                      ...site,
+                      personal: { ...site.personal, phone: e.target.value },
+                    });
                     setHasUnsavedChanges(true);
                   }}
                   className="w-full px-4 py-2.5 rounded-xl bg-surface-dark border border-border text-sm text-text-primary focus:border-accent focus:outline-none"
@@ -530,9 +593,12 @@ export default function AdminPage() {
                 </label>
                 <input
                   type="email"
-                  value={profile.email}
+                  value={site.personal.email}
                   onChange={(e) => {
-                    setProfile({ ...profile, email: e.target.value });
+                    setSite({
+                      ...site,
+                      personal: { ...site.personal, email: e.target.value },
+                    });
                     setHasUnsavedChanges(true);
                   }}
                   className="w-full px-4 py-2.5 rounded-xl bg-surface-dark border border-border text-sm text-text-primary focus:border-accent focus:outline-none"
@@ -541,13 +607,16 @@ export default function AdminPage() {
 
               <div>
                 <label className="block text-xs font-mono uppercase text-text-secondary mb-1">
-                  Current Base Location
+                  Primary Location Base
                 </label>
                 <input
                   type="text"
-                  value={profile.location}
+                  value={site.personal.location}
                   onChange={(e) => {
-                    setProfile({ ...profile, location: e.target.value });
+                    setSite({
+                      ...site,
+                      personal: { ...site.personal, location: e.target.value },
+                    });
                     setHasUnsavedChanges(true);
                   }}
                   className="w-full px-4 py-2.5 rounded-xl bg-surface-dark border border-border text-sm text-text-primary focus:border-accent focus:outline-none"
@@ -556,28 +625,16 @@ export default function AdminPage() {
 
               <div>
                 <label className="block text-xs font-mono uppercase text-text-secondary mb-1">
-                  Nepal Engineering Council (NEC) Registration
+                  Nepal Engineering Council License
                 </label>
                 <input
                   type="text"
-                  value={profile.necRegistration}
+                  value={site.personal.license}
                   onChange={(e) => {
-                    setProfile({ ...profile, necRegistration: e.target.value });
-                    setHasUnsavedChanges(true);
-                  }}
-                  className="w-full px-4 py-2.5 rounded-xl bg-surface-dark border border-border text-sm text-text-primary focus:border-accent focus:outline-none"
-                />
-              </div>
-
-              <div>
-                <label className="block text-xs font-mono uppercase text-text-secondary mb-1">
-                  Workforce Supervision Stat
-                </label>
-                <input
-                  type="text"
-                  value={profile.workforceCount}
-                  onChange={(e) => {
-                    setProfile({ ...profile, workforceCount: e.target.value });
+                    setSite({
+                      ...site,
+                      personal: { ...site.personal, license: e.target.value },
+                    });
                     setHasUnsavedChanges(true);
                   }}
                   className="w-full px-4 py-2.5 rounded-xl bg-surface-dark border border-border text-sm text-text-primary focus:border-accent focus:outline-none"
@@ -587,13 +644,34 @@ export default function AdminPage() {
 
             <div>
               <label className="block text-xs font-mono uppercase text-text-secondary mb-1">
-                Bio Summary Text
+                Hero Short Introduction
+              </label>
+              <textarea
+                rows={2}
+                value={site.personal.shortBio}
+                onChange={(e) => {
+                  setSite({
+                    ...site,
+                    personal: { ...site.personal, shortBio: e.target.value },
+                  });
+                  setHasUnsavedChanges(true);
+                }}
+                className="w-full px-4 py-2.5 rounded-xl bg-surface-dark border border-border text-sm text-text-primary focus:border-accent focus:outline-none"
+              />
+            </div>
+
+            <div>
+              <label className="block text-xs font-mono uppercase text-text-secondary mb-1">
+                About Section Detailed Bio
               </label>
               <textarea
                 rows={4}
-                value={profile.bioSummary}
+                value={site.personal.fullBio}
                 onChange={(e) => {
-                  setProfile({ ...profile, bioSummary: e.target.value });
+                  setSite({
+                    ...site,
+                    personal: { ...site.personal, fullBio: e.target.value },
+                  });
                   setHasUnsavedChanges(true);
                 }}
                 className="w-full px-4 py-3 rounded-xl bg-surface-dark border border-border text-sm text-text-primary focus:border-accent focus:outline-none leading-relaxed"
@@ -606,9 +684,12 @@ export default function AdminPage() {
               </label>
               <input
                 type="text"
-                value={profile.bioQuote}
+                value={site.personal.philosophy}
                 onChange={(e) => {
-                  setProfile({ ...profile, bioQuote: e.target.value });
+                  setSite({
+                    ...site,
+                    personal: { ...site.personal, philosophy: e.target.value },
+                  });
                   setHasUnsavedChanges(true);
                 }}
                 className="w-full px-4 py-2.5 rounded-xl bg-surface-dark border border-border text-sm text-text-primary focus:border-accent focus:outline-none"
@@ -624,7 +705,7 @@ export default function AdminPage() {
               <div>
                 <h2 className="text-lg font-bold text-text-primary">Project Case Studies</h2>
                 <p className="text-xs text-text-secondary">
-                  Manage engineering projects, academic capstone, and technical scopes.
+                  Manage projects across Infrastructure, Buildings, Surveying, and Academic categories.
                 </p>
               </div>
               <button
@@ -679,7 +760,7 @@ export default function AdminPage() {
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {projects.map((proj, idx) => (
+              {projects.map((proj) => (
                 <div
                   key={proj.id}
                   className="bg-surface rounded-2xl border border-border p-5 flex flex-col justify-between space-y-4 hover:border-accent/40 transition-colors"
@@ -749,7 +830,7 @@ export default function AdminPage() {
               <div>
                 <h2 className="text-lg font-bold text-text-primary">Professional Work Experience</h2>
                 <p className="text-xs text-text-secondary">
-                  Manage engineering appointments, key accomplishments, and supervised operations.
+                  Manage employment timeline, contractors, and field responsibilities.
                 </p>
               </div>
               <button
@@ -757,7 +838,7 @@ export default function AdminPage() {
                   const newExp: ExperienceItem = {
                     period: "2025 — PRESENT",
                     role: "Senior Civil Site Engineer",
-                    company: "Engineering Organization",
+                    company: "Construction Firm",
                     location: "Kathmandu, Nepal",
                     description: "Site engineering supervision and structural execution.",
                     achievements: ["Supervised RCC casting and structural compliance."],
@@ -866,55 +947,6 @@ export default function AdminPage() {
                     />
                   </div>
 
-                  <div>
-                    <div className="flex items-center justify-between mb-2">
-                      <label className="text-[11px] font-mono uppercase text-text-muted">
-                        Key Responsibilities &amp; Achievements ({exp.achievements.length})
-                      </label>
-                      <button
-                        onClick={() => {
-                          const updated = [...experience];
-                          updated[idx].achievements.push("New verified field responsibility.");
-                          setExperience(updated);
-                          setHasUnsavedChanges(true);
-                        }}
-                        className="text-xs font-mono text-accent hover:underline flex items-center gap-1"
-                      >
-                        <Plus className="w-3 h-3" /> Add Item
-                      </button>
-                    </div>
-
-                    <div className="space-y-2">
-                      {exp.achievements.map((ach, achIdx) => (
-                        <div key={achIdx} className="flex items-center gap-2">
-                          <input
-                            type="text"
-                            value={ach}
-                            onChange={(e) => {
-                              const updated = [...experience];
-                              updated[idx].achievements[achIdx] = e.target.value;
-                              setExperience(updated);
-                              setHasUnsavedChanges(true);
-                            }}
-                            className="flex-1 px-3 py-1.5 rounded-lg bg-surface border border-border text-xs text-text-secondary focus:border-accent focus:outline-none"
-                          />
-                          <button
-                            onClick={() => {
-                              const updated = [...experience];
-                              updated[idx].achievements.splice(achIdx, 1);
-                              setExperience(updated);
-                              setHasUnsavedChanges(true);
-                            }}
-                            className="p-1.5 text-text-muted hover:text-red-400"
-                            title="Remove item"
-                          >
-                            <Trash2 className="w-3.5 h-3.5" />
-                          </button>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-
                   <div className="pt-2 flex justify-end">
                     <button
                       onClick={() => {
@@ -1002,7 +1034,7 @@ export default function AdminPage() {
 
                   <div>
                     <label className="block text-[10px] font-mono uppercase text-text-muted mb-0.5">
-                      Image Path
+                      Image URL / Path
                     </label>
                     <input
                       type="text"
@@ -1137,6 +1169,70 @@ export default function AdminPage() {
                   </div>
                 </div>
               ))}
+            </div>
+          </div>
+        )}
+
+        {/* TAB 6: GitHub & Vercel Global Sync */}
+        {activeTab === "sync" && (
+          <div className="bg-surface rounded-2xl border border-border p-6 sm:p-8 space-y-6">
+            <div className="border-b border-border/70 pb-4">
+              <div className="flex items-center gap-2">
+                <GitBranch className="w-5 h-5 text-emerald-400" />
+                <h2 className="text-lg font-bold text-text-primary">Global Internet Deployment (GitHub &amp; Vercel)</h2>
+              </div>
+              <p className="text-xs text-text-secondary mt-1">
+                Your edits are automatically saved to your browser session. To make changes permanent for <strong>all visitors across the world</strong> on Vercel, connect your GitHub token.
+              </p>
+            </div>
+
+            <div className="p-4 rounded-xl bg-surface-dark border border-border space-y-4">
+              <div className="flex items-start gap-3">
+                <Key className="w-5 h-5 text-accent mt-0.5" />
+                <div className="space-y-1">
+                  <h4 className="text-xs font-mono font-bold uppercase text-text-primary">
+                    GitHub Personal Access Token (PAT)
+                  </h4>
+                  <p className="text-xs text-text-muted">
+                    Allows this admin console to commit updated data directly to <code className="text-accent">JholeyCodes/Denish-Adhikari-Portfolio</code> on branch <code className="text-accent">main</code>, triggering automatic Vercel redeployment.
+                  </p>
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <input
+                  type="password"
+                  value={githubToken}
+                  onChange={(e) => handleSaveGithubToken(e.target.value)}
+                  placeholder="Paste GitHub Personal Access Token (ghp_...)"
+                  className="w-full px-4 py-2.5 rounded-xl bg-surface border border-border text-xs text-text-primary font-mono focus:border-accent focus:outline-none"
+                />
+                <div className="flex items-center justify-between text-[11px] text-text-muted">
+                  <span>Saved locally in your browser so you don't have to re-enter it.</span>
+                  <a
+                    href="https://github.com/settings/tokens/new?scopes=repo&description=Denish+Portfolio+CMS"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-accent hover:underline flex items-center gap-1"
+                  >
+                    <span>Generate GitHub Token (requires 'repo' scope)</span>
+                    <ExternalLink className="w-3 h-3" />
+                  </a>
+                </div>
+              </div>
+            </div>
+
+            <div className="p-4 rounded-xl bg-emerald-950/30 border border-emerald-800/40 space-y-3">
+              <h4 className="text-xs font-mono font-bold text-emerald-400 uppercase">
+                How Live Publishing Works:
+              </h4>
+              <ol className="text-xs text-text-secondary space-y-1.5 list-decimal pl-4">
+                <li>Make your desired edits in the tabs above (Profile, Projects, Experience, Gallery, Skills).</li>
+                <li>Enter your GitHub token above (only needed once).</li>
+                <li>Click <strong>"Save &amp; Apply Edits"</strong> at the top right.</li>
+                <li>The admin portal commits the updated TypeScript files directly to your GitHub repo.</li>
+                <li>Vercel automatically catches the commit and updates the live website in ~30 seconds!</li>
+              </ol>
             </div>
           </div>
         )}

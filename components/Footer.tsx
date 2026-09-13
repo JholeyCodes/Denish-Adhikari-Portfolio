@@ -2,10 +2,15 @@
 
 import React from "react";
 import Link from "next/link";
-import { siteData } from "@/data/siteData";
+import { siteData as staticSiteData } from "@/data/siteData";
+import { usePortfolioData } from "@/data/PortfolioContext";
 import { ArrowUp, Mail, Phone, MapPin, ShieldCheck } from "lucide-react";
 
 export const Footer: React.FC = () => {
+  const { data } = usePortfolioData();
+  const personal = data?.siteData?.personal || staticSiteData.personal;
+  const navLinks = data?.siteData?.navLinks || staticSiteData.navLinks;
+
   const scrollToTop = () => {
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
@@ -22,10 +27,10 @@ export const Footer: React.FC = () => {
               </div>
               <div>
                 <h3 className="font-bold text-text-primary text-base">
-                  Er. Denish Adhikari
+                  {personal.name}
                 </h3>
                 <p className="text-xs text-text-muted font-mono">
-                  Civil Site Engineer &amp; Surveyor • Nepal
+                  {personal.role || "Civil Site Engineer & Surveyor • Nepal"}
                 </p>
               </div>
             </div>
@@ -36,7 +41,7 @@ export const Footer: React.FC = () => {
 
             <div className="inline-flex items-center gap-2 text-xs font-mono text-emerald-400 bg-emerald-950/50 px-3 py-1 rounded-full border border-emerald-800/40">
               <ShieldCheck className="w-3.5 h-3.5" />
-              <span>Nepal Engineering Council (NEC Registered)</span>
+              <span>{personal.license || "Nepal Engineering Council (NEC Registered)"}</span>
             </div>
           </div>
 
@@ -46,7 +51,7 @@ export const Footer: React.FC = () => {
               Navigation
             </h4>
             <ul className="space-y-2 text-xs">
-              {siteData.navLinks.slice(0, 6).map((link) => (
+              {navLinks.slice(0, 6).map((link) => (
                 <li key={link.label}>
                   <a
                     href={link.href}
@@ -67,19 +72,19 @@ export const Footer: React.FC = () => {
             <ul className="space-y-2.5 text-xs">
               <li className="flex items-center gap-2">
                 <Phone className="w-3.5 h-3.5 text-accent" />
-                <a href="tel:+9779867730557" className="hover:text-text-primary transition-colors">
-                  +977 9867730557
+                <a href={`tel:${personal.phone.replace(/\s+/g, "")}`} className="hover:text-text-primary transition-colors">
+                  {personal.phone}
                 </a>
               </li>
               <li className="flex items-center gap-2">
                 <Mail className="w-3.5 h-3.5 text-accent" />
-                <a href="mailto:den.adh0709@gmail.com" className="hover:text-text-primary transition-colors">
-                  den.adh0709@gmail.com
+                <a href={`mailto:${personal.email}`} className="hover:text-text-primary transition-colors">
+                  {personal.email}
                 </a>
               </li>
               <li className="flex items-center gap-2">
                 <MapPin className="w-3.5 h-3.5 text-accent" />
-                <span>Kathmandu, Nepal</span>
+                <span>{personal.location}</span>
               </li>
             </ul>
           </div>

@@ -3,19 +3,22 @@
 import React, { useState, useEffect, useCallback } from "react";
 import Image from "next/image";
 
-import { galleryData, GalleryItem } from "@/data/gallery";
+import { galleryData as staticGallery, GalleryItem } from "@/data/gallery";
+import { usePortfolioData } from "@/data/PortfolioContext";
 import { Maximize2, X, MapPin, Calendar, ChevronLeft, ChevronRight } from "lucide-react";
 
 export const GallerySection: React.FC = () => {
+  const { data } = usePortfolioData();
   const [activeItem, setActiveItem] = useState<GalleryItem | null>(null);
   const [selectedFilter, setSelectedFilter] = useState<string>("ALL");
 
+  const activeGallery = data?.galleryData || staticGallery;
   const categories = ["ALL", "CONSTRUCTION", "SURVEYING", "STRUCTURES", "TESTING"];
 
   const filteredItems =
     selectedFilter === "ALL"
-      ? galleryData
-      : galleryData.filter((item) => item.category === selectedFilter);
+      ? activeGallery
+      : activeGallery.filter((item) => item.category === selectedFilter);
 
   const handleNext = useCallback(() => {
     if (!activeItem) return;

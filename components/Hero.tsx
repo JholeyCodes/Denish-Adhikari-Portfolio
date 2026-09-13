@@ -2,7 +2,8 @@
 
 import React, { useState, useEffect } from "react";
 import Image from "next/image";
-import { siteData } from "@/data/siteData";
+import { siteData as staticSiteData } from "@/data/siteData";
+import { usePortfolioData } from "@/data/PortfolioContext";
 import { ArrowDown, FileText, ChevronRight, MapPin, Award, CheckCircle2 } from "lucide-react";
 
 interface HeroProps {
@@ -10,14 +11,18 @@ interface HeroProps {
 }
 
 export const Hero: React.FC<HeroProps> = ({ onOpenResume }) => {
+  const { data } = usePortfolioData();
+  const personal = data?.siteData?.personal || staticSiteData.personal;
+  const roles = personal.rotatingRoles && personal.rotatingRoles.length > 0 ? personal.rotatingRoles : staticSiteData.personal.rotatingRoles;
+
   const [currentRoleIndex, setCurrentRoleIndex] = useState(0);
 
   useEffect(() => {
     const timer = setInterval(() => {
-      setCurrentRoleIndex((prev) => (prev + 1) % siteData.personal.rotatingRoles.length);
+      setCurrentRoleIndex((prev) => (prev + 1) % roles.length);
     }, 2800);
     return () => clearInterval(timer);
-  }, []);
+  }, [roles.length]);
 
   return (
     <section id="hero" className="relative min-h-[92vh] pt-32 pb-16 flex items-center overflow-hidden">
@@ -37,7 +42,7 @@ export const Hero: React.FC<HeroProps> = ({ onOpenResume }) => {
               </span>
               <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-surface border border-border text-text-secondary font-mono text-xs">
                 <Award className="w-3.5 h-3.5 text-accent" />
-                NEC Licensed (Oct 2024)
+                {personal.license || "NEC Licensed"} ({personal.licenseDate || "Oct 2024"})
               </span>
             </div>
 
@@ -47,7 +52,7 @@ export const Hero: React.FC<HeroProps> = ({ onOpenResume }) => {
                 Professional Engineering Portfolio
               </p>
               <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold text-text-primary tracking-tight leading-[1.1]">
-                Er. Denish Adhikari
+                {personal.name}
               </h1>
             </div>
 
@@ -59,25 +64,21 @@ export const Hero: React.FC<HeroProps> = ({ onOpenResume }) => {
                   key={currentRoleIndex}
                   className="text-base sm:text-lg font-bold text-text-primary transition-all duration-300 animate-in fade-in slide-in-from-bottom-2"
                 >
-                  {siteData.personal.rotatingRoles[currentRoleIndex]}
+                  {roles[currentRoleIndex]}
                 </span>
               </div>
             </div>
 
             {/* Professional Summary Statement */}
             <p className="text-base sm:text-lg text-text-secondary leading-relaxed max-w-2xl">
-              Civil Engineer with practical site experience in{" "}
-              <span className="text-text-primary font-semibold">wastewater treatment plant construction</span>,{" "}
-              <span className="text-text-primary font-semibold">reinforced concrete (RCC) works</span>, and{" "}
-              <span className="text-text-primary font-semibold">Total Station &amp; Auto Level surveying</span>.
-              Proven track record managing 40–50 site laborers and maintaining strict structural compliance.
+              {personal.shortBio}
             </p>
 
             {/* Location & Contact Meta */}
             <div className="flex flex-wrap items-center gap-5 text-xs text-text-muted font-mono pt-1">
               <span className="flex items-center gap-1.5 text-text-secondary">
                 <MapPin className="w-4 h-4 text-accent" />
-                Kathmandu / Nepal
+                {personal.location}
               </span>
               <span className="flex items-center gap-1.5 text-text-secondary">
                 <CheckCircle2 className="w-4 h-4 text-emerald-400" />

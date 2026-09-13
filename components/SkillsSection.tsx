@@ -1,10 +1,13 @@
 "use client";
 
 import React from "react";
-import { skillsData } from "@/data/skills";
+import { skillsData as staticSkills } from "@/data/skills";
+import { usePortfolioData } from "@/data/PortfolioContext";
 import { Compass, HardHat, CheckCircle2, Layers, Users, Wrench } from "lucide-react";
 
 export const SkillsSection: React.FC = () => {
+  const { data } = usePortfolioData();
+  const activeSkills = data?.skillsData || staticSkills;
   const categoryIcons = [Compass, HardHat, CheckCircle2, Layers, Users];
 
   return (
@@ -23,7 +26,7 @@ export const SkillsSection: React.FC = () => {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {skillsData.map((category, idx) => {
+          {activeSkills.map((category, idx) => {
             const Icon = categoryIcons[idx % categoryIcons.length];
             return (
               <div
