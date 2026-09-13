@@ -4,14 +4,13 @@ import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { siteData as staticSiteData } from "@/data/siteData";
 import { usePortfolioData } from "@/data/PortfolioContext";
-import { FileText, Menu, X, ShieldCheck, Compass, Calculator } from "lucide-react";
+import { FileText, Menu, X, ShieldCheck, Compass } from "lucide-react";
 
 interface NavbarProps {
   onOpenResume: () => void;
-  onOpenEstimator?: () => void;
 }
 
-export const Navbar: React.FC<NavbarProps> = ({ onOpenResume, onOpenEstimator }) => {
+export const Navbar: React.FC<NavbarProps> = ({ onOpenResume }) => {
   const { data } = usePortfolioData();
   const personal = data?.siteData?.personal || staticSiteData.personal;
   const navLinks = data?.siteData?.navLinks || staticSiteData.navLinks;
@@ -24,7 +23,7 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenResume, onOpenEstimator })
     const handleScroll = () => {
       setScrolled(window.scrollY > 40);
 
-      const sections = ["hero", "about", "expertise", "projects", "experience", "skills", "gallery", "contact"];
+      const sections = ["hero", "about", "projects", "experience", "skills", "gallery", "contact"];
       const scrollPos = window.scrollY + 200;
 
       for (const section of sections) {
@@ -95,19 +94,8 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenResume, onOpenEstimator })
           })}
         </nav>
 
-        {/* Actions (CV, Estimator & Contact) */}
+        {/* Actions (CV & Contact) */}
         <div className="hidden sm:flex items-center gap-2.5">
-          {onOpenEstimator && (
-            <button
-              onClick={onOpenEstimator}
-              className="flex items-center gap-1.5 px-3 py-2 rounded-lg bg-surface-dark border border-accent/40 text-xs font-mono font-semibold text-accent hover:bg-accent hover:text-white transition-all shadow-sm group"
-              title="RCC Concrete & Material Estimator"
-            >
-              <Calculator className="w-3.5 h-3.5" />
-              <span>RCC Tool</span>
-            </button>
-          )}
-
           <button
             onClick={onOpenResume}
             className="flex items-center gap-2 px-3.5 py-2 rounded-lg bg-surface border border-border text-xs font-semibold text-text-primary hover:border-accent hover:text-accent transition-all group"
@@ -157,18 +145,6 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenResume, onOpenEstimator })
             ))}
           </div>
           <div className="pt-4 flex flex-col gap-2 border-t border-border/60">
-            {onOpenEstimator && (
-              <button
-                onClick={() => {
-                  setMobileMenuOpen(false);
-                  onOpenEstimator();
-                }}
-                className="w-full flex items-center justify-center gap-2 py-2.5 rounded-lg bg-surface-dark border border-accent/40 text-xs font-mono font-semibold text-accent hover:bg-surface"
-              >
-                <Calculator className="w-4 h-4" />
-                RCC Concrete Mix Estimator
-              </button>
-            )}
             <button
               onClick={() => {
                 setMobileMenuOpen(false);

@@ -15,14 +15,9 @@ import {
   X,
   Share2,
   Check,
-  Calculator,
 } from "lucide-react";
 
-interface ProjectsSectionProps {
-  onOpenEstimator?: () => void;
-}
-
-export const ProjectsSection: React.FC<ProjectsSectionProps> = ({ onOpenEstimator }) => {
+export const ProjectsSection: React.FC = () => {
   const { data } = usePortfolioData();
   const [selectedCategory, setSelectedCategory] = useState<string>("ALL");
   const [searchQuery, setSearchQuery] = useState<string>("");
@@ -74,21 +69,9 @@ export const ProjectsSection: React.FC<ProjectsSectionProps> = ({ onOpenEstimato
         {/* Section Heading & Utilities */}
         <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-6 mb-10">
           <div>
-            <div className="flex items-center gap-3">
-              <p className="text-xs font-mono uppercase text-accent font-semibold tracking-widest">
-                CASE STUDIES // PRACTICAL EVIDENCE
-              </p>
-              {onOpenEstimator && (
-                <button
-                  type="button"
-                  onClick={onOpenEstimator}
-                  className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-accent/15 border border-accent/30 text-accent text-[11px] font-mono hover:bg-accent hover:text-white transition-all shadow-sm"
-                >
-                  <Calculator className="w-3.5 h-3.5" />
-                  <span>RCC Material Estimator</span>
-                </button>
-              )}
-            </div>
+            <p className="text-xs font-mono uppercase text-accent font-semibold tracking-widest">
+              CASE STUDIES // PRACTICAL EVIDENCE
+            </p>
             <h2 className="text-3xl sm:text-4xl font-extrabold text-text-primary mt-2">
               Selected Projects
             </h2>
@@ -96,18 +79,6 @@ export const ProjectsSection: React.FC<ProjectsSectionProps> = ({ onOpenEstimato
               A selection of academic, professional and field-based engineering work demonstrating hands-on structural and surveying execution.
             </p>
           </div>
-
-          {/* Quick Estimator CTA on Mobile */}
-          {onOpenEstimator && (
-            <button
-              type="button"
-              onClick={onOpenEstimator}
-              className="sm:hidden flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-accent/15 border border-accent/30 text-accent text-xs font-mono font-bold"
-            >
-              <Calculator className="w-4 h-4" />
-              <span>Open RCC Concrete Mix Estimator</span>
-            </button>
-          )}
         </div>
 
         {/* Filter and Search Bar */}

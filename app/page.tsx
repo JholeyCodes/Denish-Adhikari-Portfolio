@@ -5,87 +5,61 @@ import { Navbar } from "@/components/Navbar";
 import { Hero } from "@/components/Hero";
 import { StatsCounter } from "@/components/StatsCounter";
 import { AboutSection } from "@/components/AboutSection";
-import { Expertise } from "@/components/Expertise";
 import { ProjectsSection } from "@/components/ProjectsSection";
 import { ExperienceSection } from "@/components/ExperienceSection";
 import { SkillsSection } from "@/components/SkillsSection";
 import { NepalMapSection } from "@/components/NepalMapSection";
 import { GallerySection } from "@/components/GallerySection";
-import { EducationCertSection } from "@/components/EducationCertSection";
-import { CTASection } from "@/components/CTASection";
 import { ContactSection } from "@/components/ContactSection";
 import { Footer } from "@/components/Footer";
 import { ResumeModal } from "@/components/ResumeModal";
-import { ConcreteEstimatorModal } from "@/components/ConcreteEstimatorModal";
 import { PortfolioProvider } from "@/data/PortfolioContext";
 
 export default function Home() {
   const [resumeOpen, setResumeOpen] = useState(false);
-  const [estimatorOpen, setEstimatorOpen] = useState(false);
 
   return (
     <PortfolioProvider>
       <main className="min-h-screen bg-[#0B0F14] text-text-primary">
-      {/* Sticky Header */}
-      <Navbar
-        onOpenResume={() => setResumeOpen(true)}
-        onOpenEstimator={() => setEstimatorOpen(true)}
-      />
+        {/* Sticky Header */}
+        <Navbar onOpenResume={() => setResumeOpen(true)} />
 
-      {/* Hero Section */}
-      <Hero
-        onOpenResume={() => setResumeOpen(true)}
-        onOpenEstimator={() => setEstimatorOpen(true)}
-      />
+        {/* Hero Section */}
+        <Hero onOpenResume={() => setResumeOpen(true)} />
 
-      {/* Engineering at a Glance (Stats) */}
-      <StatsCounter />
+        {/* Engineering at a Glance (Stats) */}
+        <StatsCounter />
 
-      {/* About Section */}
-      <AboutSection onOpenResume={() => setResumeOpen(true)} />
+        {/* About Section */}
+        <AboutSection onOpenResume={() => setResumeOpen(true)} />
 
-      {/* Engineering Expertise (6 Domains) */}
-      <Expertise />
+        {/* Selected Projects (Filterable Grid + Case Studies) */}
+        <ProjectsSection />
 
-      {/* Selected Projects (Filterable Grid + Case Studies) */}
-      <ProjectsSection onOpenEstimator={() => setEstimatorOpen(true)} />
+        {/* Professional Experience (Vertical Timeline) */}
+        <ExperienceSection />
 
-      {/* Professional Experience (Vertical Timeline) */}
-      <ExperienceSection />
+        {/* Engineering Skills & Instruments */}
+        <SkillsSection />
 
-      {/* Engineering Skills & Instruments */}
-      <SkillsSection />
+        {/* Geographic Footprint (Nepal Interactive Map) */}
+        <NepalMapSection />
 
-      {/* Geographic Footprint (Nepal Interactive Map) */}
-      <NepalMapSection />
+        {/* Field Notes / Site Records Gallery */}
+        <GallerySection />
 
-      {/* Field Notes / Site Records Gallery */}
-      <GallerySection />
+        {/* Contact Section */}
+        <ContactSection />
 
-      {/* Education & NEC Licensing */}
-      <EducationCertSection />
+        {/* Footer */}
+        <Footer />
 
-      {/* Call to Action */}
-      <CTASection onOpenResume={() => setResumeOpen(true)} />
-
-      {/* Contact Section */}
-      <ContactSection />
-
-      {/* Footer */}
-      <Footer />
-
-      {/* ATS Resume Modal (Printable & Downloadable) */}
-      <ResumeModal
-        isOpen={resumeOpen}
-        onClose={() => setResumeOpen(false)}
-      />
-
-      {/* RCC Concrete & Material Estimator Tool */}
-      <ConcreteEstimatorModal
-        isOpen={estimatorOpen}
-        onClose={() => setEstimatorOpen(false)}
-      />
-    </main>
+        {/* ATS Resume Modal (Printable & Downloadable) */}
+        <ResumeModal
+          isOpen={resumeOpen}
+          onClose={() => setResumeOpen(false)}
+        />
+      </main>
     </PortfolioProvider>
   );
 }

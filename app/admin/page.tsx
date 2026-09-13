@@ -69,7 +69,6 @@ export default function AdminPage() {
   const [otp, setOtp] = useState("");
   const [challengeToken, setChallengeToken] = useState("");
   const [maskedEmail, setMaskedEmail] = useState("");
-  const [debugCode, setDebugCode] = useState<string | null>(null);
   const [resendCooldown, setResendCooldown] = useState(0);
   const [resendLoading, setResendLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
@@ -260,8 +259,7 @@ export default function AdminPage() {
       const data = await res.json();
       if (res.ok && data.step === 2) {
         setChallengeToken(data.challengeToken);
-        setMaskedEmail(data.maskedEmail || "den.adh***@gmail.com");
-        setDebugCode(data.debugCode || null);
+        setMaskedEmail(data.maskedEmail || "apr***@gmail.com");
         setResendCooldown(60);
         setAuthStep(2);
       } else {
@@ -291,7 +289,6 @@ export default function AdminPage() {
       if (res.ok && data.success) {
         setChallengeToken(data.challengeToken);
         setMaskedEmail(data.maskedEmail || maskedEmail);
-        setDebugCode(data.debugCode || null);
         setResendCooldown(60);
         setStatusMessage({ text: `New code dispatched to ${data.maskedEmail}`, type: "success" });
       } else {
@@ -342,7 +339,6 @@ export default function AdminPage() {
       setAuthStep(1);
       setPassword("");
       setOtp("");
-      setDebugCode(null);
     } catch (e) {
       setIsAuthenticated(false);
     }
@@ -589,26 +585,9 @@ export default function AdminPage() {
                     autoFocus
                   />
                   <p className="text-[11px] text-text-muted font-mono text-center mt-2">
-                    Code sent to <span className="text-text-primary font-semibold">{maskedEmail || "den.adh***@gmail.com"}</span>
+                    Code sent to <span className="text-text-primary font-semibold">{maskedEmail || "apr***@gmail.com"}</span>
                   </p>
                 </div>
-
-                {/* Development / Fallback Autofill Banner */}
-                {debugCode && (
-                  <div className="p-3 rounded-xl bg-accent/15 border border-accent/40 flex items-center justify-between text-xs font-mono text-accent">
-                    <div>
-                      <span className="font-bold">Dev/Direct Mode: </span>
-                      <span>[ {debugCode} ]</span>
-                    </div>
-                    <button
-                      type="button"
-                      onClick={() => setOtp(debugCode)}
-                      className="px-2.5 py-1 rounded-lg bg-accent text-white font-bold hover:bg-accent-soft transition-colors"
-                    >
-                      Autofill
-                    </button>
-                  </div>
-                )}
 
                 <button
                   type="submit"

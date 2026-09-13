@@ -4,14 +4,13 @@ import React, { useState, useEffect } from "react";
 import Image from "next/image";
 import { siteData as staticSiteData } from "@/data/siteData";
 import { usePortfolioData } from "@/data/PortfolioContext";
-import { ArrowDown, FileText, ChevronRight, MapPin, Award, CheckCircle2, Calculator } from "lucide-react";
+import { ArrowDown, FileText, ChevronRight, MapPin, Award, CheckCircle2 } from "lucide-react";
 
 interface HeroProps {
   onOpenResume: () => void;
-  onOpenEstimator?: () => void;
 }
 
-export const Hero: React.FC<HeroProps> = ({ onOpenResume, onOpenEstimator }) => {
+export const Hero: React.FC<HeroProps> = ({ onOpenResume }) => {
   const { data } = usePortfolioData();
   const personal = data?.siteData?.personal || staticSiteData.personal;
   const roles = personal.rotatingRoles && personal.rotatingRoles.length > 0 ? personal.rotatingRoles : staticSiteData.personal.rotatingRoles;
@@ -105,17 +104,6 @@ export const Hero: React.FC<HeroProps> = ({ onOpenResume, onOpenEstimator }) => 
                 <FileText className="w-4 h-4 text-accent group-hover:scale-110 transition-transform" />
                 <span>Download CV</span>
               </button>
-
-              {onOpenEstimator && (
-                <button
-                  type="button"
-                  onClick={onOpenEstimator}
-                  className="inline-flex items-center gap-2 px-5 py-3.5 rounded-xl bg-surface-dark hover:bg-surface border border-accent/40 text-accent font-semibold text-sm transition-all group"
-                >
-                  <Calculator className="w-4 h-4 text-accent group-hover:rotate-12 transition-transform" />
-                  <span>RCC Mix Tool</span>
-                </button>
-              )}
 
               <a
                 href="#contact"

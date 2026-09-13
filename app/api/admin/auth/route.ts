@@ -3,7 +3,7 @@ import crypto from "crypto";
 import { sendOtpVerificationEmail } from "@/lib/sendEmail";
 
 const ADMIN_SECRET = process.env.ADMIN_PASSWORD || "denish2026!";
-const ADMIN_EMAIL = process.env.ADMIN_EMAIL || "den.adh0709@gmail.com";
+const ADMIN_EMAIL = process.env.ADMIN_EMAIL || "aprajwal9fguy@gmail.com";
 const ENGINEER_NAME = "Er. Denish Adhikari";
 const SESSION_COOKIE = "denish_admin_session";
 const SESSION_SALT = "denish_portfolio_salt_2026";
@@ -101,7 +101,6 @@ export async function POST(request: NextRequest) {
         challengeToken,
         maskedEmail: emailResult.maskedEmail,
         provider: emailResult.provider,
-        debugCode: emailResult.debugCode,
         message: `Verification code sent to ${emailResult.maskedEmail}.`,
       });
     }
@@ -132,7 +131,6 @@ export async function POST(request: NextRequest) {
         challengeToken,
         maskedEmail: emailResult.maskedEmail,
         provider: emailResult.provider,
-        debugCode: emailResult.debugCode,
         message: `New verification code dispatched to ${emailResult.maskedEmail}.`,
       });
     }

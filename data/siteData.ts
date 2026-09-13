@@ -45,7 +45,6 @@ export const siteData = {
   navLinks: [
     { label: "Home", href: "#hero" },
     { label: "About", href: "#about" },
-    { label: "Expertise", href: "#expertise" },
     { label: "Projects", href: "#projects" },
     { label: "Experience", href: "#experience" },
     { label: "Skills", href: "#skills" },

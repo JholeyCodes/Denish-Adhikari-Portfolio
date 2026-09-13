@@ -15,7 +15,6 @@ export interface SendEmailResult {
   provider: "resend" | "brevo" | "local_fallback";
   maskedEmail: string;
   error?: string;
-  debugCode?: string; // Provided only in development or fallback mode
 }
 
 function maskEmail(email: string): string {
@@ -143,14 +142,9 @@ export async function sendOtpVerificationEmail({
   console.log(`📨 Recipient: ${toEmail} (${engineerName})`);
   console.log(`🔢 6-Digit One-Time Password: [ ${otp} ]`);
   console.log(`⏳ Valid for: ${expiresMinutes} minutes`);
-  console.log("=================================================");
-
-  const isDevOrFallback = process.env.NODE_ENV !== "production" || !resendApiKey;
-
   return {
     success: true,
     provider: "local_fallback",
     maskedEmail: masked,
-    debugCode: isDevOrFallback ? otp : undefined,
   };
 }
